@@ -45,7 +45,6 @@ function run() {
             core.debug(new Date().toTimeString());
             yield (0, wait_1.wait)(parseInt(ms, 10));
             core.debug(new Date().toTimeString());
-            core.info('howdy');
             core.setOutput('time', new Date().toTimeString());
         }
         catch (error) {

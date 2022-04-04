@@ -67,32 +67,131 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 /* do not edit, but regenerate using xsd-tools */
 const xsd_tools_1 = __nccwpck_require__(3768);
 function default_1(doc) {
-    return (0, xsd_tools_1.parse)(doc, { "xsElement": [
-            { "@name": "ApiLinks", "@type": "ApiLinksType", "@minOccurs": 1, "@maxOccurs": 1 }
-        ], "xsComplexType": [
-            { "xsSequence": { "xsElement": [
-                        { "@name": "Manifest", "@type": "ManifestType", "@minOccurs": 1, "@maxOccurs": 1 }
-                    ] }, "xsAttribute": [], "xsAttributeGroup": [], "@name": "ApiLinksType" },
-            { "xsSequence": { "xsElement": [
-                        { "@name": "Version", "@type": "VersionStringType", "@minOccurs": 1, "@maxOccurs": 1 },
-                        { "@name": "Files", "@type": "FileListType", "@minOccurs": 1, "@maxOccurs": 1 }
-                    ] }, "xsAttribute": [], "xsAttributeGroup": [], "@name": "ManifestType" },
-            { "xsSequence": { "xsElement": [
-                        { "@name": "Linux", "@type": "SingleLinkType", "@minOccurs": 1, "@maxOccurs": 1 },
-                        { "@name": "Mac", "@type": "SingleLinkType", "@minOccurs": 1, "@maxOccurs": 1 },
-                        { "@name": "Windows", "@type": "SingleLinkType", "@minOccurs": 1, "@maxOccurs": 1 }
-                    ] }, "xsAttribute": [], "xsAttributeGroup": [], "@name": "LinksType" },
-            { "xsSimpleContent": { "xsExtension": { "xsAttribute": [
-                            { "@name": "SHA256", "@type": "ShaStringType" }
-                        ], "@base": "LinkStringType" } }, "@name": "SingleLinkType" },
-            { "xsSequence": { "xsElement": [
-                        { "@name": "File", "@type": "string", "@minOccurs": 1, "@maxOccurs": 1 }
-                    ] }, "xsAttribute": [], "xsAttributeGroup": [], "@name": "FileListType" }
-        ], "xsSimpleType": [
-            { "xsRestriction": { "xsEnumeration": [], "xsPattern": { "@value": "([0-9]|[a-f]|[A-F]){64}" }, "@base": "xs:string" }, "@name": "ShaStringType" },
-            { "xsRestriction": { "xsEnumeration": [], "xsPattern": { "@value": "https?://.*" }, "@base": "xs:string" }, "@name": "LinkStringType" },
-            { "xsRestriction": { "xsEnumeration": [], "xsPattern": { "@value": "\\d+" }, "@base": "xs:string" }, "@name": "VersionStringType" }
-        ] });
+    return (0, xsd_tools_1.parse)(doc, {
+        xsElement: [
+            {
+                '@name': 'ApiLinks',
+                '@type': 'ApiLinksType',
+                '@minOccurs': 1,
+                '@maxOccurs': 1
+            }
+        ],
+        xsComplexType: [
+            {
+                xsSequence: {
+                    xsElement: [
+                        {
+                            '@name': 'Manifest',
+                            '@type': 'ManifestType',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        }
+                    ]
+                },
+                xsAttribute: [],
+                xsAttributeGroup: [],
+                '@name': 'ApiLinksType'
+            },
+            {
+                xsSequence: {
+                    xsElement: [
+                        {
+                            '@name': 'Version',
+                            '@type': 'VersionStringType',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        },
+                        {
+                            '@name': 'Files',
+                            '@type': 'FileListType',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        }
+                    ]
+                },
+                xsAttribute: [],
+                xsAttributeGroup: [],
+                '@name': 'ManifestType'
+            },
+            {
+                xsSequence: {
+                    xsElement: [
+                        {
+                            '@name': 'Linux',
+                            '@type': 'SingleLinkType',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        },
+                        {
+                            '@name': 'Mac',
+                            '@type': 'SingleLinkType',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        },
+                        {
+                            '@name': 'Windows',
+                            '@type': 'SingleLinkType',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        }
+                    ]
+                },
+                xsAttribute: [],
+                xsAttributeGroup: [],
+                '@name': 'LinksType'
+            },
+            {
+                xsSimpleContent: {
+                    xsExtension: {
+                        xsAttribute: [{ '@name': 'SHA256', '@type': 'ShaStringType' }],
+                        '@base': 'LinkStringType'
+                    }
+                },
+                '@name': 'SingleLinkType'
+            },
+            {
+                xsSequence: {
+                    xsElement: [
+                        {
+                            '@name': 'File',
+                            '@type': 'string',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        }
+                    ]
+                },
+                xsAttribute: [],
+                xsAttributeGroup: [],
+                '@name': 'FileListType'
+            }
+        ],
+        xsSimpleType: [
+            {
+                xsRestriction: {
+                    xsEnumeration: [],
+                    xsPattern: { '@value': '([0-9]|[a-f]|[A-F]){64}' },
+                    '@base': 'xs:string'
+                },
+                '@name': 'ShaStringType'
+            },
+            {
+                xsRestriction: {
+                    xsEnumeration: [],
+                    xsPattern: { '@value': 'https?://.*' },
+                    '@base': 'xs:string'
+                },
+                '@name': 'LinkStringType'
+            },
+            {
+                xsRestriction: {
+                    xsEnumeration: [],
+                    xsPattern: { '@value': '\\d+' },
+                    '@base': 'xs:string'
+                },
+                '@name': 'VersionStringType'
+            }
+        ]
+    });
 }
 exports["default"] = default_1;
 
@@ -108,34 +207,143 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 /* do not edit, but regenerate using xsd-tools */
 const xsd_tools_1 = __nccwpck_require__(3768);
 function default_1(doc) {
-    return (0, xsd_tools_1.parse)(doc, { "xsElement": [
-            { "@name": "ModLinks", "@type": "ModLinksType", "@minOccurs": 1, "@maxOccurs": 1 }
-        ], "xsComplexType": [
-            { "xsSequence": { "xsElement": [
-                        { "@name": "Manifest", "@type": "ManifestType", "@minOccurs": 1, "@maxOccurs": 1 }
-                    ] }, "xsAttribute": [], "xsAttributeGroup": [], "@name": "ModLinksType" },
-            { "xsSequence": { "xsElement": [
-                        { "@name": "Name", "@type": "string", "@minOccurs": 1, "@maxOccurs": 1 },
-                        { "@name": "Description", "@type": "string", "@minOccurs": 1, "@maxOccurs": 1 },
-                        { "@name": "Version", "@type": "VersionStringType", "@minOccurs": 1, "@maxOccurs": 1 },
-                        { "@name": "Dependencies", "@type": "DepListType", "@minOccurs": 1, "@maxOccurs": 1 }
-                    ] }, "xsAttribute": [], "xsAttributeGroup": [], "@name": "ManifestType" },
-            { "xsSequence": { "xsElement": [
-                        { "@name": "Linux", "@type": "SingleLinkType", "@minOccurs": 1, "@maxOccurs": 1 },
-                        { "@name": "Mac", "@type": "SingleLinkType", "@minOccurs": 1, "@maxOccurs": 1 },
-                        { "@name": "Windows", "@type": "SingleLinkType", "@minOccurs": 1, "@maxOccurs": 1 }
-                    ] }, "xsAttribute": [], "xsAttributeGroup": [], "@name": "LinksType" },
-            { "xsSimpleContent": { "xsExtension": { "xsAttribute": [
-                            { "@name": "SHA256", "@type": "ShaStringType" }
-                        ], "@base": "LinkStringType" } }, "@name": "SingleLinkType" },
-            { "xsSequence": { "xsElement": [
-                        { "@name": "Dependency", "@type": "string", "@minOccurs": 1, "@maxOccurs": 1 }
-                    ] }, "xsAttribute": [], "xsAttributeGroup": [], "@name": "DepListType" }
-        ], "xsSimpleType": [
-            { "xsRestriction": { "xsEnumeration": [], "xsPattern": { "@value": "([0-9]|[a-f]|[A-F]){64}" }, "@base": "xs:string" }, "@name": "ShaStringType" },
-            { "xsRestriction": { "xsEnumeration": [], "xsPattern": { "@value": "https?://.*" }, "@base": "xs:string" }, "@name": "LinkStringType" },
-            { "xsRestriction": { "xsEnumeration": [], "xsPattern": { "@value": "(\\d+\\.){3}\\d+" }, "@base": "xs:string" }, "@name": "VersionStringType" }
-        ] });
+    return (0, xsd_tools_1.parse)(doc, {
+        xsElement: [
+            {
+                '@name': 'ModLinks',
+                '@type': 'ModLinksType',
+                '@minOccurs': 1,
+                '@maxOccurs': 1
+            }
+        ],
+        xsComplexType: [
+            {
+                xsSequence: {
+                    xsElement: [
+                        {
+                            '@name': 'Manifest',
+                            '@type': 'ManifestType',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        }
+                    ]
+                },
+                xsAttribute: [],
+                xsAttributeGroup: [],
+                '@name': 'ModLinksType'
+            },
+            {
+                xsSequence: {
+                    xsElement: [
+                        {
+                            '@name': 'Name',
+                            '@type': 'string',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        },
+                        {
+                            '@name': 'Description',
+                            '@type': 'string',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        },
+                        {
+                            '@name': 'Version',
+                            '@type': 'VersionStringType',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        },
+                        {
+                            '@name': 'Dependencies',
+                            '@type': 'DepListType',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        }
+                    ]
+                },
+                xsAttribute: [],
+                xsAttributeGroup: [],
+                '@name': 'ManifestType'
+            },
+            {
+                xsSequence: {
+                    xsElement: [
+                        {
+                            '@name': 'Linux',
+                            '@type': 'SingleLinkType',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        },
+                        {
+                            '@name': 'Mac',
+                            '@type': 'SingleLinkType',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        },
+                        {
+                            '@name': 'Windows',
+                            '@type': 'SingleLinkType',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        }
+                    ]
+                },
+                xsAttribute: [],
+                xsAttributeGroup: [],
+                '@name': 'LinksType'
+            },
+            {
+                xsSimpleContent: {
+                    xsExtension: {
+                        xsAttribute: [{ '@name': 'SHA256', '@type': 'ShaStringType' }],
+                        '@base': 'LinkStringType'
+                    }
+                },
+                '@name': 'SingleLinkType'
+            },
+            {
+                xsSequence: {
+                    xsElement: [
+                        {
+                            '@name': 'Dependency',
+                            '@type': 'string',
+                            '@minOccurs': 1,
+                            '@maxOccurs': 1
+                        }
+                    ]
+                },
+                xsAttribute: [],
+                xsAttributeGroup: [],
+                '@name': 'DepListType'
+            }
+        ],
+        xsSimpleType: [
+            {
+                xsRestriction: {
+                    xsEnumeration: [],
+                    xsPattern: { '@value': '([0-9]|[a-f]|[A-F]){64}' },
+                    '@base': 'xs:string'
+                },
+                '@name': 'ShaStringType'
+            },
+            {
+                xsRestriction: {
+                    xsEnumeration: [],
+                    xsPattern: { '@value': 'https?://.*' },
+                    '@base': 'xs:string'
+                },
+                '@name': 'LinkStringType'
+            },
+            {
+                xsRestriction: {
+                    xsEnumeration: [],
+                    xsPattern: { '@value': '(\\d+\\.){3}\\d+' },
+                    '@base': 'xs:string'
+                },
+                '@name': 'VersionStringType'
+            }
+        ]
+    });
 }
 exports["default"] = default_1;
 

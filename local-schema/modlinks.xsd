@@ -1,0 +1,96 @@
+<!--
+Very slightly modified version of the ApiLinks schema in hk-modding/modlinks. Modified to play nice with xsd-tools,
+will likely break in other sane tools (namely because instances of xs:string are replaced with string to work correctly in
+the generated TS types). Licensing notice below.
+
+MIT License
+
+Copyright (c) 2021 HollowKnight-Modding
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="https://github.com/HollowKnight-Modding/HollowKnight.ModLinks/HollowKnight.ModManager"
+           targetNamespace="https://github.com/HollowKnight-Modding/HollowKnight.ModLinks/HollowKnight.ModManager"
+           elementFormDefault="qualified">
+
+<xs:element name="ModLinks" type="ModLinksType"/>
+
+<xs:complexType name="ModLinksType">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Manifest" type="ManifestType" />
+    </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="ManifestType">
+  <xs:sequence>
+    <xs:element name="Name" type="string" />
+    <xs:element name="Description" type="string" />
+    <xs:element name="Version" type="VersionStringType" />
+    <xs:choice>
+      <xs:element name="Links" type="LinksType" />
+      <xs:element name="Link" type="SingleLinkType" />
+    </xs:choice>
+    <xs:element name="Dependencies" type="DepListType" />
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="LinksType">
+  <xs:sequence>
+    <xs:element name="Linux" type="SingleLinkType" />
+    <xs:element name="Mac" type="SingleLinkType" />
+    <xs:element name="Windows" type="SingleLinkType" />
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="SingleLinkType">
+  <xs:simpleContent>
+    <xs:extension base="LinkStringType">
+      <xs:attribute name="SHA256" type="ShaStringType" use="required" />
+    </xs:extension>
+  </xs:simpleContent>
+</xs:complexType>
+
+<xs:complexType name="DepListType">
+  <xs:sequence minOccurs="0" maxOccurs="unbounded">
+    <xs:element name="Dependency" type="string" />
+  </xs:sequence>
+</xs:complexType>
+
+<xs:simpleType name="ShaStringType">
+  <xs:restriction base="xs:string">
+    <xs:pattern value="([0-9]|[a-f]|[A-F]){64}"/>
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="LinkStringType">
+  <xs:restriction base="xs:string">
+    <xs:pattern value="https?://.*"/>
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="VersionStringType">
+  <xs:restriction base="xs:string">
+    <xs:pattern value="(\d+\.){3}\d+"/>
+  </xs:restriction>
+</xs:simpleType>
+
+</xs:schema>

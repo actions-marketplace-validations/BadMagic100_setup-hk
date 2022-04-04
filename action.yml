@@ -1,11 +1,13 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'setup-hk'
+description: 'An action that can set up a modded installation of Hollow Knight for building mods in a workflow'
+author: 'BadMagic100'
 inputs:
-  milliseconds: # change this
+  apiPath:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'The path where modding API will be installed'
+  dependencyFilePath:
+    required: false
+    description: 'The path to a ModDependencies.txt file that specifies mods to be installed from modlinks'
 runs:
   using: 'node16'
   main: 'dist/index.js'

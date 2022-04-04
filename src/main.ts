@@ -1,18 +1,15 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import {parseApiLinks, parseModLinks} from './schema/schema-util'
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+    const installPath = core.getInput('apiPath')
+    core.debug(`Requested to install at ${installPath}`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    core.info('waiting complete')
-
-    core.setOutput('time', new Date().toTimeString())
+    const apiLinks = await parseApiLinks()
+    const modLinks = await parseModLinks()
+    core.info(JSON.stringify(apiLinks))
+    core.info(JSON.stringify(modLinks))
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }

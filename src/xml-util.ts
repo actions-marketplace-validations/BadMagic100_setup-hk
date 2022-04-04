@@ -16,18 +16,18 @@ const parser = new XMLParser({
   isArray: (_, jpath) => alwaysArray.includes(jpath),
 });
 
-async function downloadAndParseXml(link: string): Promise<any> {
+async function downloadAndParseXml(link: string): Promise<unknown> {
   const filePath = await tc.downloadTool(link);
   const content = await readFile(filePath, 'utf-8');
   return parser.parse(content);
 }
 
-export const parseApiLinks = async (): Promise<any> =>
+export const parseApiLinks = async (): Promise<unknown> =>
   await downloadAndParseXml(
     'https://raw.githubusercontent.com/hk-modding/modlinks/main/ApiLinks.xml',
   );
 
-export const parseModLinks = async (): Promise<any> =>
+export const parseModLinks = async (): Promise<unknown> =>
   await downloadAndParseXml(
     'https://raw.githubusercontent.com/hk-modding/modlinks/main/ModLinks.xml',
   );

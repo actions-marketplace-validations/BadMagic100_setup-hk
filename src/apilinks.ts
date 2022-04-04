@@ -1,6 +1,12 @@
 import { downloadLink, MultiplatformLinks } from './links-processing';
 import * as core from '@actions/core';
 
+interface ApiSchema {
+  ApiLinks: {
+    Manifest: ApiManifest;
+  };
+}
+
 export interface ApiManifest {
   Version: number;
   Links: MultiplatformLinks;
@@ -9,8 +15,8 @@ export interface ApiManifest {
   };
 }
 
-export function getApiLinksManifest(rawJson: any): ApiManifest {
-  return rawJson.ApiLinks.Manifest as ApiManifest;
+export function getApiLinksManifest(rawJson: unknown): ApiManifest {
+  return (rawJson as ApiSchema).ApiLinks.Manifest;
 }
 
 export async function tryDownloadApiManifest(

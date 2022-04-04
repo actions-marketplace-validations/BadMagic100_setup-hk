@@ -98,10 +98,15 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.downloadLink = exports.getPreferredLinkPlatform = void 0;
 const tc = __importStar(__nccwpck_require__(7784));
 const core = __importStar(__nccwpck_require__(2186));
-const crypto_1 = __nccwpck_require__(6113);
+const crypto = __importStar(__nccwpck_require__(6113));
+const path = __importStar(__nccwpck_require__(1017));
 const promises_1 = __nccwpck_require__(3292);
 function isSingleLink(link) {
     return link.$value !== undefined;
+}
+const allowedExtensions = ['.dll', '.zip'];
+function readonlyIncludes(list, item) {
+    return list.includes(item);
 }
 function getPreferredLinkPlatform() {
     switch (process.platform) {
@@ -124,9 +129,19 @@ function downloadLink(link, dest) {
             core.debug(`Detected platform ${platform} while downloading multiplatform link ${link.$value}`);
         }
         try {
+            const ext = path.extname(link.$value);
+            if (!readonlyIncludes(allowedExtensions, ext)) {
+                return {
+                    succeeded: false,
+                    detailedReason: `Download link ${link.$value} does not have a supported extension`,
+                };
+            }
             const resultPath = yield tc.downloadTool(link.$value, dest);
             const fileContent = yield (0, promises_1.readFile)(resultPath);
-            const actualHash = (0, crypto_1.createHash)('sha256').update(fileContent).digest('hex');
+            const actualHash = crypto
+                .createHash('sha256')
+                .update(fileContent)
+                .digest('hex');
             const expectedHash = link.__SHA256.toLowerCase();
             if (actualHash !== expectedHash) {
                 return {
@@ -134,7 +149,7 @@ function downloadLink(link, dest) {
                     detailedReason: `Expected hash ${expectedHash}, got ${actualHash} instead`,
                 };
             }
-            return { succeeded: true, resultPath };
+            return { succeeded: true, fileType: ext, resultPath };
         }
         catch (error) {
             const message = error instanceof Error ? error.message : 'Unexpected failure';

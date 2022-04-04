@@ -1,6 +1,7 @@
 import * as tc from '@actions/tool-cache';
 import * as core from '@actions/core';
-import { createHash } from 'crypto';
+import * as crypto from 'crypto';
+import * as path from 'path';
 import { readFile } from 'fs/promises';
 
 export type LinkData = {
@@ -18,6 +19,16 @@ function isSingleLink(link: LinkData | MultiplatformLinks): link is LinkData {
   return (link as LinkData).$value !== undefined;
 }
 
+const allowedExtensions = ['.dll', '.zip'] as const;
+type ModFileType = typeof allowedExtensions[number];
+
+function readonlyIncludes<T extends U, U>(
+  list: readonly T[],
+  item: U,
+): item is T {
+  return list.includes(item as T);
+}
+
 interface DownloadFailed {
   succeeded: false;
   detailedReason: string;
@@ -26,6 +37,7 @@ interface DownloadFailed {
 interface DownloadSuccess {
   succeeded: true;
   resultPath: string;
+  fileType: ModFileType;
 }
 
 export type DownloadStatus = DownloadFailed | DownloadSuccess;
@@ -56,10 +68,20 @@ export async function downloadLink(
   }
 
   try {
+    const ext = path.extname(link.$value);
+    if (!readonlyIncludes(allowedExtensions, ext)) {
+      return {
+        succeeded: false,
+        detailedReason: `Download link ${link.$value} does not have a supported extension`,
+      };
+    }
     const resultPath = await tc.downloadTool(link.$value, dest);
 
     const fileContent = await readFile(resultPath);
-    const actualHash = createHash('sha256').update(fileContent).digest('hex');
+    const actualHash = crypto
+      .createHash('sha256')
+      .update(fileContent)
+      .digest('hex');
     const expectedHash = link.__SHA256.toLowerCase();
     if (actualHash !== expectedHash) {
       return {
@@ -67,7 +89,7 @@ export async function downloadLink(
         detailedReason: `Expected hash ${expectedHash}, got ${actualHash} instead`,
       };
     }
-    return { succeeded: true, resultPath };
+    return { succeeded: true, fileType: ext, resultPath };
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Unexpected failure';

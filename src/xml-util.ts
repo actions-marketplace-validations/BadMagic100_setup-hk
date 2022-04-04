@@ -6,6 +6,7 @@ import * as tc from '@actions/tool-cache'
 const parser = new XMLParser({
   ignoreDeclaration: true,
   ignoreAttributes: false,
+  attributeNamePrefix: '__',
   textNodeName: '$value'
 })
 

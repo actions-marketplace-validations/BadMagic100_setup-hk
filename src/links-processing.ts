@@ -5,7 +5,7 @@ import {readFile} from 'fs/promises'
 
 export type LinkData = {
   $value: string
-  SHA256: string
+  __SHA256: string
 }
 
 export interface MultiplatformLinks {
@@ -60,7 +60,7 @@ export async function downloadLink(
 
     const fileContent = await readFile(resultPath)
     const actualHash = createHash('sha256').update(fileContent).digest('hex')
-    const expectedHash = link.SHA256.toLowerCase()
+    const expectedHash = link.__SHA256.toLowerCase()
     if (actualHash !== expectedHash) {
       return {
         succeeded: false,

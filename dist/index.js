@@ -127,7 +127,7 @@ function downloadLink(link, dest) {
             const resultPath = yield tc.downloadTool(link.$value, dest);
             const fileContent = yield (0, promises_1.readFile)(resultPath);
             const actualHash = (0, crypto_1.createHash)('sha256').update(fileContent).digest('hex');
-            const expectedHash = link.SHA256.toLowerCase();
+            const expectedHash = link.__SHA256.toLowerCase();
             if (actualHash !== expectedHash) {
                 return {
                     succeeded: false,
@@ -248,6 +248,7 @@ const tc = __importStar(__nccwpck_require__(7784));
 const parser = new fast_xml_parser_1.XMLParser({
     ignoreDeclaration: true,
     ignoreAttributes: false,
+    attributeNamePrefix: '__',
     textNodeName: '$value'
 });
 function downloadAndParseXml(link) {

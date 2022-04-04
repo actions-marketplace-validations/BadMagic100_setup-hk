@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import {parseApiLinks, parseModLinks} from './schema/schema-util'
+import {parseApiLinks, parseModLinks} from './schema-util'
 
 async function run(): Promise<void> {
   try {

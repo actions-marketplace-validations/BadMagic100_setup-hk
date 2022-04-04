@@ -36,7 +36,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
-const schema_util_1 = __nccwpck_require__(8459);
+const schema_util_1 = __nccwpck_require__(3873);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -58,7 +58,7 @@ run();
 
 /***/ }),
 
-/***/ 8459:
+/***/ 3873:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -96,11 +96,16 @@ exports.parseModLinks = exports.parseApiLinks = void 0;
 const promises_1 = __nccwpck_require__(3292);
 const fast_xml_parser_1 = __nccwpck_require__(2603);
 const tc = __importStar(__nccwpck_require__(7784));
+const parser = new fast_xml_parser_1.XMLParser({
+    ignoreDeclaration: true,
+    ignoreAttributes: false,
+    attributeNamePrefix: '@'
+});
 function downloadAndParseXml(link) {
     return __awaiter(this, void 0, void 0, function* () {
         const filePath = yield tc.downloadTool(link);
         const content = yield (0, promises_1.readFile)(filePath, 'utf-8');
-        return new fast_xml_parser_1.XMLParser().parse(content);
+        return parser.parse(content);
     });
 }
 const parseApiLinks = () => __awaiter(void 0, void 0, void 0, function* () {

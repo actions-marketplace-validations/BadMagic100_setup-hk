@@ -3,7 +3,7 @@ import parseMods, {ModLinksType} from './modlinks'
 import {readFile} from 'fs/promises'
 import {DOMParser} from 'xmldom'
 
-import tc from '@actions/tool-cache'
+import * as tc from '@actions/tool-cache'
 
 async function downloadAndParseDom(link: string): Promise<Document> {
   const apiLinksPath = await tc.downloadTool(link)

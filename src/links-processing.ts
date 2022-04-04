@@ -70,9 +70,7 @@ export async function downloadLink(
     return {succeeded: true, resultPath}
   } catch (error) {
     const message =
-      error instanceof Error
-        ? error.message
-        : 'Failed to download for an unknown reason'
+      error instanceof Error ? error.message : 'Unexpected failure'
     return {succeeded: false, detailedReason: message}
   }
 }

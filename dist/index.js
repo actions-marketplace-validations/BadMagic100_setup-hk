@@ -137,9 +137,7 @@ function downloadLink(link, dest) {
             return { succeeded: true, resultPath };
         }
         catch (error) {
-            const message = error instanceof Error
-                ? error.message
-                : 'Failed to download for an unknown reason';
+            const message = error instanceof Error ? error.message : 'Unexpected failure';
             return { succeeded: false, detailedReason: message };
         }
     });
@@ -192,6 +190,7 @@ function run() {
             const installPath = core.getInput('apiPath');
             core.debug(`Requested to install at ${installPath}`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
             const apiLinks = (0, apilinks_1.getApiLinksManifest)(yield (0, xml_util_1.parseApiLinks)());
+            core.info(JSON.stringify(apiLinks));
             if (yield (0, apilinks_1.tryDownloadApiManifest)(apiLinks)) {
                 const modLinks = yield (0, xml_util_1.parseModLinks)();
                 core.info(JSON.stringify(modLinks));

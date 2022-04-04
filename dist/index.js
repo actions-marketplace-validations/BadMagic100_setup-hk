@@ -245,11 +245,16 @@ exports.parseModLinks = exports.parseApiLinks = void 0;
 const promises_1 = __nccwpck_require__(3292);
 const fast_xml_parser_1 = __nccwpck_require__(2603);
 const tc = __importStar(__nccwpck_require__(7784));
+const alwaysArray = [
+    'ModLinks.Manifest',
+    'ModLinks.Manifest.Dependencies.Dependency'
+];
 const parser = new fast_xml_parser_1.XMLParser({
     ignoreDeclaration: true,
     ignoreAttributes: false,
     attributeNamePrefix: '__',
-    textNodeName: '$value'
+    textNodeName: '$value',
+    isArray: (_, jpath) => alwaysArray.includes(jpath)
 });
 function downloadAndParseXml(link) {
     return __awaiter(this, void 0, void 0, function* () {

@@ -1,6 +1,154 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 1285:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.tryDownloadApiManifest = exports.getApiLinksManifest = void 0;
+const links_processing_1 = __nccwpck_require__(9085);
+const core = __importStar(__nccwpck_require__(2186));
+function getApiLinksManifest(rawJson) {
+    return rawJson.ApiLinks.Manifest;
+}
+exports.getApiLinksManifest = getApiLinksManifest;
+function tryDownloadApiManifest(manifest) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info(`Attempting to download MAPI v${manifest.Version}`);
+        const result = yield (0, links_processing_1.downloadLink)(manifest.Links);
+        if (result.succeeded) {
+            core.info(`Successfully downloaded MAPI v${manifest.Version} to ${result.resultPath}`);
+            return true;
+        }
+        else {
+            core.setFailed(`Failed to download MAPI v${manifest.Version}: ${result.detailedReason}`);
+            return false;
+        }
+    });
+}
+exports.tryDownloadApiManifest = tryDownloadApiManifest;
+
+
+/***/ }),
+
+/***/ 9085:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.downloadLink = exports.getPreferredLinkPlatform = void 0;
+const tc = __importStar(__nccwpck_require__(7784));
+const core = __importStar(__nccwpck_require__(2186));
+const crypto_1 = __nccwpck_require__(6113);
+const promises_1 = __nccwpck_require__(3292);
+function isSingleLink(link) {
+    return link.$value !== undefined;
+}
+function getPreferredLinkPlatform() {
+    switch (process.platform) {
+        case 'win32':
+            return 'Windows';
+        case 'linux':
+            return 'Linux';
+        case 'darwin':
+            return 'Mac';
+        default:
+            throw new Error('Not running on a modlinks-supported platform');
+    }
+}
+exports.getPreferredLinkPlatform = getPreferredLinkPlatform;
+function downloadLink(link, dest) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!isSingleLink(link)) {
+            const platform = getPreferredLinkPlatform();
+            link = link[platform];
+            core.debug(`Detected platform ${platform} while downloading multiplatform link ${link.$value}`);
+        }
+        try {
+            const resultPath = yield tc.downloadTool(link.$value, dest);
+            const fileContent = yield (0, promises_1.readFile)(resultPath);
+            const actualHash = (0, crypto_1.createHash)('sha256').update(fileContent).digest('hex');
+            const expectedHash = link.SHA256.toLowerCase();
+            if (actualHash !== expectedHash) {
+                return {
+                    succeeded: false,
+                    detailedReason: `Expected hash ${expectedHash}, got ${actualHash} instead`
+                };
+            }
+            return { succeeded: true, resultPath };
+        }
+        catch (error) {
+            const message = error instanceof Error
+                ? error.message
+                : 'Failed to download for an unknown reason';
+            return { succeeded: false, detailedReason: message };
+        }
+    });
+}
+exports.downloadLink = downloadLink;
+
+
+/***/ }),
+
 /***/ 3109:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -36,16 +184,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
-const schema_util_1 = __nccwpck_require__(3873);
+const apilinks_1 = __nccwpck_require__(1285);
+const xml_util_1 = __nccwpck_require__(9521);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const installPath = core.getInput('apiPath');
             core.debug(`Requested to install at ${installPath}`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
-            const apiLinks = yield (0, schema_util_1.parseApiLinks)();
-            const modLinks = yield (0, schema_util_1.parseModLinks)();
-            core.info(JSON.stringify(apiLinks));
-            core.info(JSON.stringify(modLinks));
+            const apiLinks = (0, apilinks_1.getApiLinksManifest)(yield (0, xml_util_1.parseApiLinks)());
+            if (yield (0, apilinks_1.tryDownloadApiManifest)(apiLinks)) {
+                const modLinks = yield (0, xml_util_1.parseModLinks)();
+                core.info(JSON.stringify(modLinks));
+            }
         }
         catch (error) {
             if (error instanceof Error)
@@ -58,7 +208,7 @@ run();
 
 /***/ }),
 
-/***/ 3873:
+/***/ 9521:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -99,7 +249,7 @@ const tc = __importStar(__nccwpck_require__(7784));
 const parser = new fast_xml_parser_1.XMLParser({
     ignoreDeclaration: true,
     ignoreAttributes: false,
-    attributeNamePrefix: '@'
+    textNodeName: '$value'
 });
 function downloadAndParseXml(link) {
     return __awaiter(this, void 0, void 0, function* () {

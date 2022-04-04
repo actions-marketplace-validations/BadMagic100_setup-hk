@@ -6,7 +6,7 @@ import * as tc from '@actions/tool-cache'
 const parser = new XMLParser({
   ignoreDeclaration: true,
   ignoreAttributes: false,
-  attributeNamePrefix: '@'
+  textNodeName: '$value'
 })
 
 async function downloadAndParseXml(link: string): Promise<any> {

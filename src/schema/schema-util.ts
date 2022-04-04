@@ -1,26 +1,20 @@
-import parseApi, {ApiLinksType} from './apilinks'
-import parseMods, {ModLinksType} from './modlinks'
 import {readFile} from 'fs/promises'
-import {DOMParser} from 'xmldom'
+import {XMLParser} from 'fast-xml-parser'
 
 import * as tc from '@actions/tool-cache'
 
-async function downloadAndParseDom(link: string): Promise<Document> {
-  const apiLinksPath = await tc.downloadTool(link)
-  const content = await readFile(apiLinksPath, 'utf-8')
-  return new DOMParser().parseFromString(content, 'text/xml')
+async function downloadAndParseXml(link: string): Promise<any> {
+  const filePath = await tc.downloadTool(link)
+  const content = await readFile(filePath, 'utf-8')
+  return new XMLParser().parse(content)
 }
 
-export async function parseApiLinks(): Promise<ApiLinksType> {
-  const dom = await downloadAndParseDom(
+export const parseApiLinks = async () =>
+  await downloadAndParseXml(
     'https://raw.githubusercontent.com/hk-modding/modlinks/main/ApiLinks.xml'
   )
-  return parseApi(dom).ApiLinks
-}
 
-export async function parseModLinks(): Promise<ModLinksType> {
-  const dom = await downloadAndParseDom(
+export const parseModLinks = async () =>
+  await downloadAndParseXml(
     'https://raw.githubusercontent.com/hk-modding/modlinks/main/ModLinks.xml'
   )
-  return parseMods(dom).ModLinks
-}

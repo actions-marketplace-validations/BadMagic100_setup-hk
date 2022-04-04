@@ -27,17 +27,13 @@
     "@actions/core": "^1.6.0",
     "@actions/io": "^1.1.2",
     "@actions/tool-cache": "^1.7.2",
-    "fast-xml-parser": "^4.0.7",
-    "xmldom": "^0.6.0",
-    "xsd-tools": "^0.1.1"
+    "fast-xml-parser": "^4.0.7"
   },
   "devDependencies": {
     "@types/node": "^16.10.5",
-    "@types/xmldom": "^0.1.31",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",
     "@vercel/ncc": "^0.33.3",
-    "@xsd-tools/typescript": "^0.1.1",
     "eslint": "^7.32.0",
     "eslint-plugin-github": "^4.3.2",
     "eslint-plugin-jest": "^25.3.2",

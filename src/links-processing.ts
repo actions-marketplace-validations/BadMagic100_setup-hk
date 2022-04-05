@@ -63,7 +63,7 @@ export async function downloadLink(
     const platform = getPreferredLinkPlatform();
     link = link[platform];
     core.debug(
-      `Detected platform ${platform} while downloading multiplatform link ${link.$value}`,
+      `Detected platform ${platform} while downloading multiplatform link, selected ${link.$value}`,
     );
   }
 

@@ -126,7 +126,7 @@ function downloadLink(link, dest) {
         if (!isSingleLink(link)) {
             const platform = getPreferredLinkPlatform();
             link = link[platform];
-            core.debug(`Detected platform ${platform} while downloading multiplatform link ${link.$value}`);
+            core.debug(`Detected platform ${platform} while downloading multiplatform link, selected ${link.$value}`);
         }
         try {
             const ext = path.extname(link.$value);
@@ -261,6 +261,7 @@ const promises_1 = __nccwpck_require__(3292);
 const fast_xml_parser_1 = __nccwpck_require__(2603);
 const tc = __importStar(__nccwpck_require__(7784));
 const alwaysArray = [
+    'ApiLinks.Manifest.Files.File',
     'ModLinks.Manifest',
     'ModLinks.Manifest.Dependencies.Dependency',
 ];

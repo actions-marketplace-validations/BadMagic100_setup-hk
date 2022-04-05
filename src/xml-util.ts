@@ -4,6 +4,7 @@ import { XMLParser } from 'fast-xml-parser';
 import * as tc from '@actions/tool-cache';
 
 const alwaysArray = [
+  'ApiLinks.Manifest.Files.File',
   'ModLinks.Manifest',
   'ModLinks.Manifest.Dependencies.Dependency',
 ];

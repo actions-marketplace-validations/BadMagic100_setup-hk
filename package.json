@@ -5,13 +5,15 @@
   "description": "An action that installs dependencies for HK mods from modlinks",
   "main": "lib/main.js",
   "scripts": {
+    "clean": "rimraf lib && rimraf dist",
     "build": "tsc",
     "format": "prettier --write \"**/*.ts\"",
     "format-check": "prettier --check \"**/*.ts\"",
     "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map --license licenses.txt",
+    "test": "jest",
     "schema-gen": "xsd-ts local-schema/apilinks.xsd src/schema/apilinks.ts && xsd-ts local-schema/modlinks.xsd src/schema/modlinks.ts",
-    "all": "npm run build && npm run format && npm run lint && npm run package"
+    "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
   },
   "repository": {
     "type": "git",
@@ -30,6 +32,7 @@
     "fast-xml-parser": "^4.0.7"
   },
   "devDependencies": {
+    "@types/jest": "^27.4.1",
     "@types/node": "^16.10.5",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",
@@ -41,6 +44,7 @@
     "jest": "^27.5.1",
     "js-yaml": "^4.1.0",
     "prettier": "^2.6.1",
+    "rimraf": "^3.0.2",
     "ts-jest": "^27.1.4",
     "typescript": "^4.4.4"
   }

@@ -5,7 +5,7 @@ import { parseApiLinks, parseModLinks } from './schema/xml-util';
 async function run(): Promise<void> {
   try {
     const installPath = core.getInput('apiPath');
-    core.debug(`Requested to install at ${installPath}`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+    core.debug(`Requested to install at ${installPath}`);
 
     const apiLinks = await parseApiLinks();
     core.info(JSON.stringify(apiLinks));

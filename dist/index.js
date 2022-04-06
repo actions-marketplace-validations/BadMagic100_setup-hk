@@ -209,7 +209,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const installPath = core.getInput('apiPath');
-            core.debug(`Requested to install at ${installPath}`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+            core.debug(`Requested to install at ${installPath}`);
             const apiLinks = yield (0, xml_util_1.parseApiLinks)();
             core.info(JSON.stringify(apiLinks));
             if (yield (0, apilinks_1.tryDownloadApiManifest)(apiLinks)) {

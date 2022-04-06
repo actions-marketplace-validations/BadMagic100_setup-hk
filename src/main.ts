@@ -1,5 +1,10 @@
 import * as core from '@actions/core';
 import { getApiLinksManifest, tryDownloadApiManifest } from './apilinks';
+import {
+  getModLinksManifests,
+  ModManifest,
+  tryDownloadModManifest,
+} from './modlinks';
 import { parseApiLinks, parseModLinks } from './xml-util';
 
 async function run(): Promise<void> {
@@ -10,8 +15,14 @@ async function run(): Promise<void> {
     const apiLinks = getApiLinksManifest(await parseApiLinks());
     core.info(JSON.stringify(apiLinks));
     if (await tryDownloadApiManifest(apiLinks)) {
-      const modLinks = await parseModLinks();
-      core.info(JSON.stringify(modLinks));
+      const modLinks = getModLinksManifests(await parseModLinks());
+      const modLookup = modLinks.reduce((map, obj) => {
+        map[obj.Name] = obj;
+        return map;
+      }, {} as Record<string, ModManifest>);
+      ['MagicUI', 'ConnectionMetadataInjector'].forEach(mod => {
+        tryDownloadModManifest(modLookup[mod]);
+      });
     }
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message);

@@ -210,6 +210,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const apilinks_1 = __nccwpck_require__(1285);
+const modlinks_1 = __nccwpck_require__(213);
 const xml_util_1 = __nccwpck_require__(9521);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -219,8 +220,14 @@ function run() {
             const apiLinks = (0, apilinks_1.getApiLinksManifest)(yield (0, xml_util_1.parseApiLinks)());
             core.info(JSON.stringify(apiLinks));
             if (yield (0, apilinks_1.tryDownloadApiManifest)(apiLinks)) {
-                const modLinks = yield (0, xml_util_1.parseModLinks)();
-                core.info(JSON.stringify(modLinks));
+                const modLinks = (0, modlinks_1.getModLinksManifests)(yield (0, xml_util_1.parseModLinks)());
+                const modLookup = modLinks.reduce((map, obj) => {
+                    map[obj.Name] = obj;
+                    return map;
+                }, {});
+                ['MagicUI', 'ConnectionMetadataInjector'].forEach(mod => {
+                    (0, modlinks_1.tryDownloadModManifest)(modLookup[mod]);
+                });
             }
         }
         catch (error) {
@@ -230,6 +237,73 @@ function run() {
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 213:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.tryDownloadModManifest = exports.getModLinksManifests = void 0;
+const links_processing_1 = __nccwpck_require__(9085);
+const core = __importStar(__nccwpck_require__(2186));
+function isAllPlatformMod(manifest) {
+    return 'Link' in manifest;
+}
+function getModLinksManifests(rawJson) {
+    return rawJson.ModLinks.Manifest;
+}
+exports.getModLinksManifests = getModLinksManifests;
+function tryDownloadModManifest(manifest) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info(`Attempting to download ${manifest.Name} v${manifest.Version}`);
+        const result = yield (0, links_processing_1.downloadLink)(isAllPlatformMod(manifest) ? manifest.Link : manifest.Links);
+        if (result.succeeded) {
+            core.info(`Successfully downloaded ${manifest.Name} v${manifest.Version} to ${result.resultPath}`);
+            return true;
+        }
+        else {
+            core.setFailed(`Failed to download ${manifest.Name} v${manifest.Version}: ${result.detailedReason}`);
+            return false;
+        }
+    });
+}
+exports.tryDownloadModManifest = tryDownloadModManifest;
 
 
 /***/ }),

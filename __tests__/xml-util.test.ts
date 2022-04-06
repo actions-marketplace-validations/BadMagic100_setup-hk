@@ -52,7 +52,57 @@ const modLinksSingleLinkWithDep = `
 <?xml version="1.0"?>
 <ModLinks>
   <Manifest>
-  <Name>QoL</Name>
+    <Name>QoL</Name>
+    <Description>A collection of various quality of life improvements.</Description>
+    <Version>4.2.0.0</Version>
+    <Link SHA256="55FBBAE4B666D0BB83201A14DE0AF662D417B174F502E0E0F919A012B42B4EE9">
+        <![CDATA[https://github.com/fifty-six/HollowKnight.QoL/releases/download/v4.2/QoL.zip]]>
+    </Link>
+    <Dependencies>
+        <Dependency>Vasi</Dependency>
+    </Dependencies>
+  </Manifest>
+</ModLinks>`;
+
+const modMultiLinks = `
+<?xml version="1.0"?>
+<ModLinks>
+  <Manifest>
+    <Name>QoL</Name>
+    <Description>A collection of various quality of life improvements.</Description>
+    <Version>4.2.0.0</Version>
+    <Links>
+      <Linux SHA256="55FBBAE4B666D0BB83201A14DE0AF662D417B174F502E0E0F919A012B42B4EE9">
+          <![CDATA[https://github.com/fifty-six/HollowKnight.QoL/releases/download/v4.2/QoL.zip]]>
+      </Link>
+      <Mac SHA256="55FBBAE4B666D0BB83201A14DE0AF662D417B174F502E0E0F919A012B42B4EE9">
+          <![CDATA[https://github.com/fifty-six/HollowKnight.QoL/releases/download/v4.2/QoL.zip]]>
+      </Link>
+      <Windows SHA256="55FBBAE4B666D0BB83201A14DE0AF662D417B174F502E0E0F919A012B42B4EE9">
+          <![CDATA[https://github.com/fifty-six/HollowKnight.QoL/releases/download/v4.2/QoL.zip]]>
+      </Link>
+    </Links>
+    <Dependencies>
+        <Dependency>Vasi</Dependency>
+        <Dependency>SomeOtherMod</Dependency>
+    </Dependencies>
+  </Manifest>
+</ModLinks>`;
+
+const modLinksMultipleManifests = `
+<?xml version="1.0"?>
+<ModLinks>
+  <Manifest>
+      <Name>SteelSoulHUD</Name>
+      <Description>Enables the Steel Soul HUD in normal mode.</Description>
+      <Version>1.0.0.0</Version>
+      <Link SHA256="C411A892B6409537EF01625EE3B42722D4C0FBA4F051316096939CE0DD46A7AF">
+          <![CDATA[https://github.com/dpinela/SteelSoulHUD/releases/download/v1.0/SteelSoulHUD.zip]]>
+      </Link>
+      <Dependencies />
+  </Manifest>
+  <Manifest>
+    <Name>QoL</Name>
     <Description>A collection of various quality of life improvements.</Description>
     <Version>4.2.0.0</Version>
     <Link SHA256="55FBBAE4B666D0BB83201A14DE0AF662D417B174F502E0E0F919A012B42B4EE9">
@@ -132,6 +182,80 @@ test('parses minimal mod links, with dependencies', async () => {
   expect(await parseModLinks()).toEqual({
     ModLinks: {
       Manifest: [
+        {
+          Name: 'QoL',
+          Description: 'A collection of various quality of life improvements.',
+          Version: '4.2.0.0',
+          Link: {
+            $value:
+              'https://github.com/fifty-six/HollowKnight.QoL/releases/download/v4.2/QoL.zip',
+            __SHA256:
+              '55FBBAE4B666D0BB83201A14DE0AF662D417B174F502E0E0F919A012B42B4EE9',
+          },
+          Dependencies: {
+            Dependency: ['Vasi'],
+          },
+        },
+      ],
+    },
+  });
+});
+
+test('parses multiplatform mod links', async () => {
+  readFileMock.mockResolvedValue(modMultiLinks);
+  expect(await parseModLinks()).toEqual({
+    ModLinks: {
+      Manifest: [
+        {
+          Name: 'QoL',
+          Description: 'A collection of various quality of life improvements.',
+          Version: '4.2.0.0',
+          Links: {
+            Linux: {
+              $value:
+                'https://github.com/fifty-six/HollowKnight.QoL/releases/download/v4.2/QoL.zip',
+              __SHA256:
+                '55FBBAE4B666D0BB83201A14DE0AF662D417B174F502E0E0F919A012B42B4EE9',
+            },
+            Mac: {
+              $value:
+                'https://github.com/fifty-six/HollowKnight.QoL/releases/download/v4.2/QoL.zip',
+              __SHA256:
+                '55FBBAE4B666D0BB83201A14DE0AF662D417B174F502E0E0F919A012B42B4EE9',
+            },
+            Windows: {
+              $value:
+                'https://github.com/fifty-six/HollowKnight.QoL/releases/download/v4.2/QoL.zip',
+              __SHA256:
+                '55FBBAE4B666D0BB83201A14DE0AF662D417B174F502E0E0F919A012B42B4EE9',
+            },
+          },
+          Dependencies: {
+            Dependency: ['Vasi', 'SomeOtherMod'],
+          },
+        },
+      ],
+    },
+  });
+});
+
+test('parses modlinks with multiple manifests', async () => {
+  readFileMock.mockResolvedValue(modLinksMultipleManifests);
+  expect(await parseModLinks()).toEqual({
+    ModLinks: {
+      Manifest: [
+        {
+          Name: 'SteelSoulHUD',
+          Description: 'Enables the Steel Soul HUD in normal mode.',
+          Version: '1.0.0.0',
+          Link: {
+            $value:
+              'https://github.com/dpinela/SteelSoulHUD/releases/download/v1.0/SteelSoulHUD.zip',
+            __SHA256:
+              'C411A892B6409537EF01625EE3B42722D4C0FBA4F051316096939CE0DD46A7AF',
+          },
+          Dependencies: '',
+        },
         {
           Name: 'QoL',
           Description: 'A collection of various quality of life improvements.',

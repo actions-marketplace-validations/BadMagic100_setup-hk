@@ -3,7 +3,21 @@ import * as core from '@actions/core';
 import * as crypto from 'crypto';
 import * as path from 'path';
 import { readFile } from 'fs/promises';
-import { isLink, LinkData, MultiplatformLinks } from './schema/schema-types';
+
+export type LinkData = {
+  $value: string;
+  __SHA256: string;
+};
+
+export interface MultiplatformLinks {
+  Linux: LinkData;
+  Mac: LinkData;
+  Windows: LinkData;
+}
+
+function isSingleLink(link: LinkData | MultiplatformLinks): link is LinkData {
+  return (link as LinkData).$value !== undefined;
+}
 
 const allowedExtensions = ['.dll', '.zip'] as const;
 type ModFileType = typeof allowedExtensions[number];
@@ -31,11 +45,11 @@ export type DownloadStatus = DownloadFailed | DownloadSuccess;
 export function getPreferredLinkPlatform(): keyof MultiplatformLinks {
   switch (process.platform) {
     case 'win32':
-      return 'windows';
+      return 'Windows';
     case 'linux':
-      return 'linux';
+      return 'Linux';
     case 'darwin':
-      return 'mac';
+      return 'Mac';
     default:
       throw new Error('Not running on a modlinks-supported platform');
   }
@@ -45,30 +59,30 @@ export async function downloadLink(
   link: LinkData | MultiplatformLinks,
   dest?: string,
 ): Promise<DownloadStatus> {
-  if (!isLink(link)) {
+  if (!isSingleLink(link)) {
     const platform = getPreferredLinkPlatform();
     link = link[platform];
     core.debug(
-      `Detected platform ${platform} while downloading multiplatform link, selected ${link.href}`,
+      `Detected platform ${platform} while downloading multiplatform link, selected ${link.$value}`,
     );
   }
 
   try {
-    const ext = path.extname(link.href);
+    const ext = path.extname(link.$value);
     if (!readonlyIncludes(allowedExtensions, ext)) {
       return {
         succeeded: false,
-        detailedReason: `Download link ${link.href} does not have a supported extension`,
+        detailedReason: `Download link ${link.$value} does not have a supported extension`,
       };
     }
-    const resultPath = await tc.downloadTool(link.href, dest);
+    const resultPath = await tc.downloadTool(link.$value, dest);
 
     const fileContent = await readFile(resultPath);
     const actualHash = crypto
       .createHash('sha256')
       .update(fileContent)
       .digest('hex');
-    const expectedHash = link.hash.toLowerCase();
+    const expectedHash = link.__SHA256.toLowerCase();
     if (actualHash !== expectedHash) {
       return {
         succeeded: false,

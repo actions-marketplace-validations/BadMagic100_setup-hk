@@ -150,7 +150,7 @@ function downloadLink(link, dest) {
                 .createHash('sha256')
                 .update(fileContent)
                 .digest('hex');
-            const expectedHash = link.__SHA256.toLowerCase() + 'x';
+            const expectedHash = link.__SHA256.toLowerCase();
             if (actualHash !== expectedHash) {
                 return {
                     succeeded: false,
@@ -218,9 +218,10 @@ function run() {
             const installPath = core.getInput('apiPath');
             core.debug(`Requested to install at ${installPath}`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
             const apiLinks = (0, apilinks_1.getApiLinksManifest)(yield (0, xml_util_1.parseApiLinks)());
-            core.info(JSON.stringify(apiLinks));
+            core.debug(JSON.stringify(apiLinks));
             if (yield (0, apilinks_1.tryDownloadApiManifest)(apiLinks)) {
                 const modLinks = (0, modlinks_1.getModLinksManifests)(yield (0, xml_util_1.parseModLinks)());
+                core.debug(JSON.stringify(modLinks));
                 const modLookup = modLinks.reduce((map, obj) => {
                     map[obj.Name] = obj;
                     return map;

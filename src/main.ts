@@ -20,8 +20,8 @@ async function run(): Promise<void> {
         map[obj.Name] = obj;
         return map;
       }, {} as Record<string, ModManifest>);
-      ['MagicUI', 'ConnectionMetadataInjector'].forEach(mod => {
-        tryDownloadModManifest(modLookup[mod]);
+      ['MagicUI', 'ConnectionMetadataInjector'].forEach(async mod => {
+        await tryDownloadModManifest(modLookup[mod]);
       });
     }
   } catch (error) {

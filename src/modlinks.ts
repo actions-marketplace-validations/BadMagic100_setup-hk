@@ -33,7 +33,13 @@ function isAllPlatformMod(
 }
 
 export function getModLinksManifests(rawJson: unknown): ModManifest[] {
-  return (rawJson as ModLinksSchema).ModLinks.Manifest;
+  const manifests = (rawJson as ModLinksSchema).ModLinks.Manifest;
+  manifests.forEach(manifest => {
+    if ((manifest.Dependencies.Dependency as unknown) === '') {
+      manifest.Dependencies.Dependency = [];
+    }
+  });
+  return manifests;
 }
 
 export async function tryDownloadModManifest(

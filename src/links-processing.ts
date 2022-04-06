@@ -82,7 +82,7 @@ export async function downloadLink(
       .createHash('sha256')
       .update(fileContent)
       .digest('hex');
-    const expectedHash = link.__SHA256.toLowerCase();
+    const expectedHash = link.__SHA256.toLowerCase() + 'x';
     if (actualHash !== expectedHash) {
       return {
         succeeded: false,

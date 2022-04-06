@@ -150,7 +150,7 @@ function downloadLink(link, dest) {
                 .createHash('sha256')
                 .update(fileContent)
                 .digest('hex');
-            const expectedHash = link.__SHA256.toLowerCase();
+            const expectedHash = link.__SHA256.toLowerCase() + 'x';
             if (actualHash !== expectedHash) {
                 return {
                     succeeded: false,
@@ -225,9 +225,9 @@ function run() {
                     map[obj.Name] = obj;
                     return map;
                 }, {});
-                ['MagicUI', 'ConnectionMetadataInjector'].forEach(mod => {
-                    (0, modlinks_1.tryDownloadModManifest)(modLookup[mod]);
-                });
+                ['MagicUI', 'ConnectionMetadataInjector'].forEach((mod) => __awaiter(this, void 0, void 0, function* () {
+                    yield (0, modlinks_1.tryDownloadModManifest)(modLookup[mod]);
+                }));
             }
         }
         catch (error) {
@@ -286,7 +286,13 @@ function isAllPlatformMod(manifest) {
     return 'Link' in manifest;
 }
 function getModLinksManifests(rawJson) {
-    return rawJson.ModLinks.Manifest;
+    const manifests = rawJson.ModLinks.Manifest;
+    manifests.forEach(manifest => {
+        if (manifest.Dependencies.Dependency === '') {
+            manifest.Dependencies.Dependency = [];
+        }
+    });
+    return manifests;
 }
 exports.getModLinksManifests = getModLinksManifests;
 function tryDownloadModManifest(manifest) {

@@ -1,37 +1,20 @@
-import { downloadLink, MultiplatformLinks } from './links-processing';
+import { downloadLink } from './links-processing';
 import * as core from '@actions/core';
-
-interface ApiSchema {
-  ApiLinks: {
-    Manifest: ApiManifest;
-  };
-}
-
-export interface ApiManifest {
-  Version: number;
-  Links: MultiplatformLinks;
-  Files: {
-    File: string[];
-  };
-}
-
-export function getApiLinksManifest(rawJson: unknown): ApiManifest {
-  return (rawJson as ApiSchema).ApiLinks.Manifest;
-}
+import { ApiManifest } from './schema/schema-types';
 
 export async function tryDownloadApiManifest(
   manifest: ApiManifest,
 ): Promise<boolean> {
-  core.info(`Attempting to download MAPI v${manifest.Version}`);
-  const result = await downloadLink(manifest.Links);
+  core.info(`Attempting to download MAPI v${manifest.version}`);
+  const result = await downloadLink(manifest.links);
   if (result.succeeded) {
     core.info(
-      `Successfully downloaded MAPI v${manifest.Version} to ${result.resultPath}`,
+      `Successfully downloaded MAPI v${manifest.version} to ${result.resultPath}`,
     );
     return true;
   } else {
     core.setFailed(
-      `Failed to download MAPI v${manifest.Version}: ${result.detailedReason}`,
+      `Failed to download MAPI v${manifest.version}: ${result.detailedReason}`,
     );
     return false;
   }

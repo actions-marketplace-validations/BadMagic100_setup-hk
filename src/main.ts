@@ -1,13 +1,13 @@
 import * as core from '@actions/core';
-import { getApiLinksManifest, tryDownloadApiManifest } from './apilinks';
-import { parseApiLinks, parseModLinks } from './xml-util';
+import { tryDownloadApiManifest } from './apilinks';
+import { parseApiLinks, parseModLinks } from './schema/xml-util';
 
 async function run(): Promise<void> {
   try {
     const installPath = core.getInput('apiPath');
     core.debug(`Requested to install at ${installPath}`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
 
-    const apiLinks = getApiLinksManifest(await parseApiLinks());
+    const apiLinks = await parseApiLinks();
     core.info(JSON.stringify(apiLinks));
     if (await tryDownloadApiManifest(apiLinks)) {
       const modLinks = await parseModLinks();

@@ -304,8 +304,12 @@ function run() {
             }
         }
         catch (error) {
-            if (error instanceof Error)
+            if (error instanceof Error) {
+                if (core.isDebug()) {
+                    core.error(error);
+                }
                 core.setFailed(error.message);
+            }
         }
     });
 }

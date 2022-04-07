@@ -368,8 +368,8 @@ function isAllPlatformMod(manifest) {
 function getModLinksManifests(rawJson) {
     const manifests = rawJson.ModLinks.Manifest;
     manifests.forEach(manifest => {
-        if (manifest.Dependencies.Dependency === '') {
-            manifest.Dependencies.Dependency = [];
+        if (manifest.Dependencies === '') {
+            manifest.Dependencies = { Dependency: [] };
         }
     });
     return manifests;

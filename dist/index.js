@@ -55,12 +55,70 @@ function tryDownloadApiManifest(manifest) {
             return true;
         }
         else {
-            core.setFailed(`Failed to download MAPI v${manifest.Version}: ${result.detailedReason}`);
+            core.error(`Failed to download MAPI v${manifest.Version}: ${result.detailedReason}`);
             return false;
         }
     });
 }
 exports.tryDownloadApiManifest = tryDownloadApiManifest;
+
+
+/***/ }),
+
+/***/ 6641:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.resolveDependencyTree = void 0;
+const queue_typescript_1 = __nccwpck_require__(1676);
+const core = __importStar(__nccwpck_require__(2186));
+function resolveDependencyTree(targetMods, modLookup) {
+    const modsToProcess = new queue_typescript_1.Queue(...targetMods);
+    const processedMods = new Set();
+    let dependencyError = false;
+    while (modsToProcess.length > 0) {
+        const currentMod = modsToProcess.dequeue();
+        if (currentMod in modLookup) {
+            const manifest = modLookup[currentMod];
+            manifest.Dependencies.Dependency.forEach(modsToProcess.enqueue.bind(modsToProcess));
+            processedMods.add(currentMod);
+        }
+        else {
+            dependencyError = true;
+            core.error(`${currentMod} expected in modlinks, but was not present`);
+        }
+    }
+    if (dependencyError) {
+        core.setFailed('One or more requested dependencies was not available in modlinks. See previous output for more information');
+    }
+    return new Set([...processedMods].map(x => modLookup[x]));
+}
+exports.resolveDependencyTree = resolveDependencyTree;
 
 
 /***/ }),
@@ -210,6 +268,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const apilinks_1 = __nccwpck_require__(1285);
+const dependency_management_1 = __nccwpck_require__(6641);
 const modlinks_1 = __nccwpck_require__(213);
 const xml_util_1 = __nccwpck_require__(9521);
 function run() {
@@ -226,9 +285,22 @@ function run() {
                     map[obj.Name] = obj;
                     return map;
                 }, {});
-                ['MagicUI', 'ConnectionMetadataInjector'].forEach((mod) => __awaiter(this, void 0, void 0, function* () {
-                    yield (0, modlinks_1.tryDownloadModManifest)(modLookup[mod]);
-                }));
+                // todo: dependency management
+                const modsToDownload = (0, dependency_management_1.resolveDependencyTree)(['MagicUI', 'ConnectionMetadataInjector'], modLookup);
+                let downloadedAllDependencies = true;
+                for (const mod of modsToDownload) {
+                    const success = yield (0, modlinks_1.tryDownloadModManifest)(mod);
+                    downloadedAllDependencies = downloadedAllDependencies && success;
+                }
+                if (downloadedAllDependencies) {
+                    // do something fancy
+                }
+                else {
+                    core.setFailed('Unable to download all dependency files, see previous output for more details');
+                }
+            }
+            else {
+                core.setFailed('Unable to download API files, see previous output for more details');
             }
         }
         catch (error) {
@@ -299,13 +371,16 @@ exports.getModLinksManifests = getModLinksManifests;
 function tryDownloadModManifest(manifest) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info(`Attempting to download ${manifest.Name} v${manifest.Version}`);
+        if (isAllPlatformMod(manifest)) {
+            manifest.Link.__SHA256 += 'x';
+        }
         const result = yield (0, links_processing_1.downloadLink)(isAllPlatformMod(manifest) ? manifest.Link : manifest.Links);
         if (result.succeeded) {
             core.info(`Successfully downloaded ${manifest.Name} v${manifest.Version} to ${result.resultPath}`);
             return true;
         }
         else {
-            core.setFailed(`Failed to download ${manifest.Name} v${manifest.Version}: ${result.detailedReason}`);
+            core.error(`Failed to download ${manifest.Name} v${manifest.Version}: ${result.detailedReason}`);
             return false;
         }
     });
@@ -5607,6 +5682,248 @@ class XmlNode{
 
 
 module.exports = XmlNode;
+
+/***/ }),
+
+/***/ 5898:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+class LinkedList {
+    constructor(...values) {
+        this._head = this._tail = null;
+        this._length = 0;
+        if (values.length > 0) {
+            values.forEach((value) => {
+                this.append(value);
+            });
+        }
+    }
+    *iterator() {
+        let currentItem = this._head;
+        while (currentItem) {
+            yield currentItem.value;
+            currentItem = currentItem.next;
+        }
+    }
+    [Symbol.iterator]() {
+        return this.iterator();
+    }
+    get head() {
+        return this._head ? this._head.value : null;
+    }
+    get tail() {
+        return this._tail ? this._tail.value : null;
+    }
+    get length() {
+        return this._length;
+    }
+    // Adds the element at a specific position inside the linked list
+    insert(val, previousItem, checkDuplicates = false) {
+        if (checkDuplicates && this.isDuplicate(val)) {
+            return false;
+        }
+        let newItem = new LinkedListItem(val);
+        let currentItem = this._head;
+        if (!currentItem) {
+            return false;
+        }
+        else {
+            while (true) {
+                if (currentItem.value === previousItem) {
+                    newItem.next = currentItem.next;
+                    newItem.prev = currentItem;
+                    currentItem.next = newItem;
+                    if (newItem.next) {
+                        newItem.next.prev = newItem;
+                    }
+                    else {
+                        this._tail = newItem;
+                    }
+                    this._length++;
+                    return true;
+                }
+                else {
+                    if (currentItem.next) {
+                        currentItem = currentItem.next;
+                    }
+                    else {
+                        // can't locate previousItem
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    // Adds the element at the end of the linked list
+    append(val, checkDuplicates = false) {
+        if (checkDuplicates && this.isDuplicate(val)) {
+            return false;
+        }
+        let newItem = new LinkedListItem(val);
+        if (!this._tail) {
+            this._head = this._tail = newItem;
+        }
+        else {
+            this._tail.next = newItem;
+            newItem.prev = this._tail;
+            this._tail = newItem;
+        }
+        this._length++;
+        return true;
+    }
+    // Add the element at the beginning of the linked list
+    prepend(val, checkDuplicates = false) {
+        if (checkDuplicates && this.isDuplicate(val)) {
+            return false;
+        }
+        let newItem = new LinkedListItem(val);
+        if (!this._head) {
+            this._head = this._tail = newItem;
+        }
+        else {
+            newItem.next = this._head;
+            this._head.prev = newItem;
+            this._head = newItem;
+        }
+        this._length++;
+        return true;
+    }
+    remove(val) {
+        let currentItem = this._head;
+        if (!currentItem) {
+            return;
+        }
+        if (currentItem.value === val) {
+            this._head = currentItem.next;
+            this._head.prev = null;
+            currentItem.next = currentItem.prev = null;
+            this._length--;
+            return currentItem.value;
+        }
+        else {
+            while (true) {
+                if (currentItem.value === val) {
+                    if (currentItem.next) { // special case for last element
+                        currentItem.prev.next = currentItem.next;
+                        currentItem.next.prev = currentItem.prev;
+                        currentItem.next = currentItem.prev = null;
+                    }
+                    else {
+                        currentItem.prev.next = null;
+                        this._tail = currentItem.prev;
+                        currentItem.next = currentItem.prev = null;
+                    }
+                    this._length--;
+                    return currentItem.value;
+                }
+                else {
+                    if (currentItem.next) {
+                        currentItem = currentItem.next;
+                    }
+                    else {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    removeHead() {
+        let currentItem = this._head;
+        // empty list
+        if (!currentItem) {
+            return;
+        }
+        // single item list
+        if (!this._head.next) {
+            this._head = null;
+            this._tail = null;
+            // full list
+        }
+        else {
+            this._head.next.prev = null;
+            this._head = this._head.next;
+            currentItem.next = currentItem.prev = null;
+        }
+        this._length--;
+        return currentItem.value;
+    }
+    removeTail() {
+        let currentItem = this._tail;
+        // empty list
+        if (!currentItem) {
+            return;
+        }
+        // single item list
+        if (!this._tail.prev) {
+            this._head = null;
+            this._tail = null;
+            // full list
+        }
+        else {
+            this._tail.prev.next = null;
+            this._tail = this._tail.prev;
+            currentItem.next = currentItem.prev = null;
+        }
+        this._length--;
+        return currentItem.value;
+    }
+    first(num) {
+        let iter = this.iterator();
+        let result = [];
+        let n = Math.min(num, this.length);
+        for (let i = 0; i < n; i++) {
+            let val = iter.next();
+            result.push(val.value);
+        }
+        return result;
+    }
+    toArray() {
+        return [...this];
+    }
+    isDuplicate(val) {
+        let set = new Set(this.toArray());
+        return set.has(val);
+    }
+}
+exports.LinkedList = LinkedList;
+class LinkedListItem {
+    constructor(val) {
+        this.value = val;
+        this.next = null;
+        this.prev = null;
+    }
+}
+exports.LinkedListItem = LinkedListItem;
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 1676:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const linked_list_typescript_1 = __nccwpck_require__(5898);
+class Queue extends linked_list_typescript_1.LinkedList {
+    constructor(...values) {
+        super(...values);
+    }
+    get front() {
+        return this.head;
+    }
+    enqueue(val) {
+        this.append(val);
+    }
+    dequeue() {
+        return this.removeHead();
+    }
+}
+exports.Queue = Queue;
+//# sourceMappingURL=index.js.map
 
 /***/ }),
 

@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import { getApiLinksManifest, tryDownloadApiManifest } from './apilinks';
+import { resolveDependencyTree } from './dependency-management';
 import {
   getModLinksManifests,
   ModManifest,
@@ -21,9 +22,29 @@ async function run(): Promise<void> {
         map[obj.Name] = obj;
         return map;
       }, {} as Record<string, ModManifest>);
-      ['MagicUI', 'ConnectionMetadataInjector'].forEach(async mod => {
-        await tryDownloadModManifest(modLookup[mod]);
-      });
+
+      // todo: dependency management
+      const modsToDownload = resolveDependencyTree(
+        ['MagicUI', 'ConnectionMetadataInjector'],
+        modLookup,
+      );
+      let downloadedAllDependencies = true;
+      for (const mod of modsToDownload) {
+        const success = await tryDownloadModManifest(mod);
+        downloadedAllDependencies = downloadedAllDependencies && success;
+      }
+
+      if (downloadedAllDependencies) {
+        // do something fancy
+      } else {
+        core.setFailed(
+          'Unable to download all dependency files, see previous output for more details',
+        );
+      }
+    } else {
+      core.setFailed(
+        'Unable to download API files, see previous output for more details',
+      );
     }
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message);

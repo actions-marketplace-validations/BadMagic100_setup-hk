@@ -30,7 +30,7 @@ export async function tryDownloadApiManifest(
     );
     return true;
   } else {
-    core.setFailed(
+    core.error(
       `Failed to download MAPI v${manifest.Version}: ${result.detailedReason}`,
     );
     return false;

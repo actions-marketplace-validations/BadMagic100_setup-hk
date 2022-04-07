@@ -285,8 +285,7 @@ function run() {
                     map[obj.Name] = obj;
                     return map;
                 }, {});
-                // todo: dependency management
-                const modsToDownload = (0, dependency_management_1.resolveDependencyTree)(['MagicUI', 'ConnectionMetadataInjector'], modLookup);
+                const modsToDownload = (0, dependency_management_1.resolveDependencyTree)(['MagicUI', 'ConnectionMetadataInjector', 'Foo', 'Bar'], modLookup);
                 let downloadedAllDependencies = true;
                 for (const mod of modsToDownload) {
                     const success = yield (0, modlinks_1.tryDownloadModManifest)(mod);
@@ -378,9 +377,6 @@ exports.getModLinksManifests = getModLinksManifests;
 function tryDownloadModManifest(manifest) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info(`Attempting to download ${manifest.Name} v${manifest.Version}`);
-        if (isAllPlatformMod(manifest)) {
-            manifest.Link.__SHA256 += 'x';
-        }
         const result = yield (0, links_processing_1.downloadLink)(isAllPlatformMod(manifest) ? manifest.Link : manifest.Links);
         if (result.succeeded) {
             core.info(`Successfully downloaded ${manifest.Name} v${manifest.Version} to ${result.resultPath}`);

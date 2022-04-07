@@ -23,9 +23,8 @@ async function run(): Promise<void> {
         return map;
       }, {} as Record<string, ModManifest>);
 
-      // todo: dependency management
       const modsToDownload = resolveDependencyTree(
-        ['MagicUI', 'ConnectionMetadataInjector'],
+        ['MagicUI', 'ConnectionMetadataInjector', 'Foo', 'Bar'],
         modLookup,
       );
       let downloadedAllDependencies = true;

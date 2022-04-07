@@ -46,9 +46,6 @@ export async function tryDownloadModManifest(
   manifest: ModManifest,
 ): Promise<boolean> {
   core.info(`Attempting to download ${manifest.Name} v${manifest.Version}`);
-  if (isAllPlatformMod(manifest)) {
-    manifest.Link.__SHA256 += 'x';
-  }
   const result = await downloadLink(
     isAllPlatformMod(manifest) ? manifest.Link : manifest.Links,
   );

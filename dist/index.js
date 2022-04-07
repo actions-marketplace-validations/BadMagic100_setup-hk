@@ -307,6 +307,9 @@ function run() {
             if (error instanceof Error) {
                 if (core.isDebug()) {
                     core.error(error);
+                    if (error.stack) {
+                        core.error(error.stack);
+                    }
                 }
                 core.setFailed(error.message);
             }

@@ -17,8 +17,39 @@ export interface ApiManifest {
   };
 }
 
+const vanillaLinks: ApiManifest = {
+  Version: 1.5,
+  Links: {
+    Windows: {
+      $value: 'https://files.catbox.moe/i4sdl6.zip',
+      __SHA256:
+        '15dbd6a5668c722c9b1e585b944756063a7f4b41f9c0e161a3c7649f1d3ab08e',
+    },
+    Linux: {
+      $value: 'https://files.catbox.moe/j85bvb.zip',
+      __SHA256:
+        'febb2350fb19ab6ec594f9994bd6854d16f5e8f8b30008571e43c082bbd7eef7',
+    },
+    Mac: {
+      $value: 'https://files.catbox.moe/j8fyro.zip',
+      __SHA256:
+        '48a038fb88d7a85b4f92d1c879ef5478d3734f440cf99aae0d6d5013148feb00',
+    },
+  },
+  // not actually used currently, just a placeholder for the moment
+  Files: {
+    File: [],
+  },
+};
+
 export function getApiLinksManifest(rawJson: unknown): ApiManifest {
   return (rawJson as ApiSchema).ApiLinks.Manifest;
+}
+
+export async function tryDownloadVanilla(
+  apiTargetPath: string,
+): Promise<boolean> {
+  return tryDownloadApiManifest(vanillaLinks, apiTargetPath);
 }
 
 export async function tryDownloadApiManifest(

@@ -39,15 +39,42 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.tryDownloadApiManifest = exports.getApiLinksManifest = void 0;
+exports.tryDownloadApiManifest = exports.tryDownloadVanilla = exports.getApiLinksManifest = void 0;
 const links_processing_1 = __nccwpck_require__(9085);
 const core = __importStar(__nccwpck_require__(2186));
 const tc = __importStar(__nccwpck_require__(7784));
 const io = __importStar(__nccwpck_require__(7436));
+const vanillaLinks = {
+    Version: 1.5,
+    Links: {
+        Windows: {
+            $value: 'https://files.catbox.moe/i4sdl6.zip',
+            __SHA256: '15dbd6a5668c722c9b1e585b944756063a7f4b41f9c0e161a3c7649f1d3ab08e',
+        },
+        Linux: {
+            $value: 'https://files.catbox.moe/j85bvb.zip',
+            __SHA256: 'febb2350fb19ab6ec594f9994bd6854d16f5e8f8b30008571e43c082bbd7eef7',
+        },
+        Mac: {
+            $value: 'https://files.catbox.moe/j8fyro.zip',
+            __SHA256: '48a038fb88d7a85b4f92d1c879ef5478d3734f440cf99aae0d6d5013148feb00',
+        },
+    },
+    // not actually used currently, just a placeholder for the moment
+    Files: {
+        File: [],
+    },
+};
 function getApiLinksManifest(rawJson) {
     return rawJson.ApiLinks.Manifest;
 }
 exports.getApiLinksManifest = getApiLinksManifest;
+function tryDownloadVanilla(apiTargetPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return tryDownloadApiManifest(vanillaLinks, apiTargetPath);
+    });
+}
+exports.tryDownloadVanilla = tryDownloadVanilla;
 function tryDownloadApiManifest(manifest, apiTargetPath) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info(`Attempting to download MAPI v${manifest.Version}`);

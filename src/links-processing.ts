@@ -29,12 +29,12 @@ function readonlyIncludes<T extends U, U>(
   return list.includes(item as T);
 }
 
-interface DownloadFailed {
+export interface DownloadFailed {
   succeeded: false;
   detailedReason: string;
 }
 
-interface DownloadSuccess {
+export interface DownloadSuccess {
   succeeded: true;
   resultPath: string;
   fileType: ModFileType;

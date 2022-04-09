@@ -42,12 +42,12 @@ async function run(): Promise<void> {
       }, {} as Record<string, ModManifest>);
 
       const modsToDownload = resolveDependencyTree(
-        ['MagicUI', 'ConnectionMetadataInjector'],
+        ['MagicUI', 'ConnectionMetadataInjector', 'Satchel'],
         modLookup,
       );
       let downloadedAllDependencies = true;
       for (const mod of modsToDownload) {
-        const success = await tryDownloadModManifest(mod);
+        const success = await tryDownloadModManifest(mod, modPath);
         downloadedAllDependencies = downloadedAllDependencies && success;
       }
 

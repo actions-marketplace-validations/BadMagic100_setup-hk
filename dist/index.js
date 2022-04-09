@@ -336,10 +336,10 @@ function run() {
                     map[obj.Name] = obj;
                     return map;
                 }, {});
-                const modsToDownload = (0, dependency_management_1.resolveDependencyTree)(['MagicUI', 'ConnectionMetadataInjector'], modLookup);
+                const modsToDownload = (0, dependency_management_1.resolveDependencyTree)(['MagicUI', 'ConnectionMetadataInjector', 'Satchel'], modLookup);
                 let downloadedAllDependencies = true;
                 for (const mod of modsToDownload) {
-                    const success = yield (0, modlinks_1.tryDownloadModManifest)(mod);
+                    const success = yield (0, modlinks_1.tryDownloadModManifest)(mod, modPath);
                     downloadedAllDependencies = downloadedAllDependencies && success;
                 }
                 if (downloadedAllDependencies) {
@@ -418,10 +418,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.tryDownloadModManifest = exports.getModLinksManifests = void 0;
 const links_processing_1 = __nccwpck_require__(9085);
 const core = __importStar(__nccwpck_require__(2186));
+const io = __importStar(__nccwpck_require__(7436));
+const tc = __importStar(__nccwpck_require__(7784));
+const path_1 = __importDefault(__nccwpck_require__(1017));
 function isAllPlatformMod(manifest) {
     return 'Link' in manifest;
 }
@@ -435,12 +441,31 @@ function getModLinksManifests(rawJson) {
     return manifests;
 }
 exports.getModLinksManifests = getModLinksManifests;
-function tryDownloadModManifest(manifest) {
+function extractMod(mod, result, modInstallPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const thisModInstall = path_1.default.join(modInstallPath, mod.Name);
+        yield io.mkdirP(thisModInstall);
+        if (result.fileType === '.dll') {
+            yield io.cp(result.resultPath, thisModInstall, { force: true });
+        }
+        else if (result.fileType === '.zip') {
+            const tmpResult = yield tc.extractZip(result.resultPath);
+            yield io.cp(tmpResult, thisModInstall, {
+                recursive: true,
+                force: true,
+                copySourceDirectory: false,
+            });
+        }
+        return thisModInstall;
+    });
+}
+function tryDownloadModManifest(manifest, modInstallPath) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info(`Attempting to download ${manifest.Name} v${manifest.Version}`);
         const result = yield (0, links_processing_1.downloadLink)(isAllPlatformMod(manifest) ? manifest.Link : manifest.Links);
         if (result.succeeded) {
-            core.info(`Successfully downloaded ${manifest.Name} v${manifest.Version} to ${result.resultPath}`);
+            const thisModInstallPath = yield extractMod(manifest, result, modInstallPath);
+            core.info(`Successfully downloaded ${manifest.Name} v${manifest.Version} to ${thisModInstallPath}`);
             return true;
         }
         else {

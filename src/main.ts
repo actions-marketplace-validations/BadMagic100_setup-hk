@@ -45,14 +45,13 @@ async function run(): Promise<void> {
 
         // for debug purposes, upload the created install folder to sanity check if needed
         if (core.isDebug()) {
-          await zip(installPath, 'ManagedFolder');
+          const artifactName = `ManagedFolder-${process.platform}`;
+          const zipPath = `${artifactName}.zip`;
+          await zip(installPath, zipPath);
           const artifactClient = artifact.create();
-          artifactClient.uploadArtifact(
-            'ManagedFolder',
-            ['ManagedFolder'],
-            '.',
-            { continueOnError: true },
-          );
+          artifactClient.uploadArtifact(artifactName, [zipPath], '.', {
+            continueOnError: true,
+          });
         }
       } else {
         core.setFailed(

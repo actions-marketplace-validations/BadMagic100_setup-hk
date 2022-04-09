@@ -58,7 +58,11 @@ function tryDownloadApiManifest(manifest, apiTargetPath) {
                 return false;
             }
             const tmpResult = yield tc.extractZip(result.resultPath);
-            yield io.cp(tmpResult, apiTargetPath, { recursive: true, force: true });
+            yield io.cp(tmpResult, apiTargetPath, {
+                recursive: true,
+                force: true,
+                copySourceDirectory: false,
+            });
             core.info(`Successfully downloaded MAPI v${manifest.Version} to ${apiTargetPath}`);
             return true;
         }
@@ -312,9 +316,13 @@ function run() {
                     // do something fancy
                     // for debug purposes, upload the created install folder to sanity check if needed
                     if (core.isDebug()) {
-                        yield (0, zip_a_folder_1.zip)(installPath, 'ManagedFolder');
+                        const artifactName = `ManagedFolder-${process.platform}`;
+                        const zipPath = `${artifactName}.zip`;
+                        yield (0, zip_a_folder_1.zip)(installPath, zipPath);
                         const artifactClient = artifact.create();
-                        artifactClient.uploadArtifact('ManagedFolder', ['ManagedFolder'], '.', { continueOnError: true });
+                        artifactClient.uploadArtifact(artifactName, [zipPath], '.', {
+                            continueOnError: true,
+                        });
                     }
                 }
                 else {

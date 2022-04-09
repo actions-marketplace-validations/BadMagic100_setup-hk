@@ -35,7 +35,11 @@ export async function tryDownloadApiManifest(
       return false;
     }
     const tmpResult = await tc.extractZip(result.resultPath);
-    await io.cp(tmpResult, apiTargetPath, { recursive: true, force: true });
+    await io.cp(tmpResult, apiTargetPath, {
+      recursive: true,
+      force: true,
+      copySourceDirectory: false,
+    });
 
     core.info(
       `Successfully downloaded MAPI v${manifest.Version} to ${apiTargetPath}`,

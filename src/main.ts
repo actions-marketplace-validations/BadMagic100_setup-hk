@@ -2,7 +2,11 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as artifact from '@actions/artifact';
 import path from 'path';
-import { getApiLinksManifest, tryDownloadApiManifest } from './apilinks';
+import {
+  getApiLinksManifest,
+  tryDownloadApiManifest,
+  tryDownloadVanilla,
+} from './apilinks';
 import { resolveDependencyTree } from './dependency-management';
 import {
   getModLinksManifests,
@@ -22,6 +26,13 @@ async function run(): Promise<void> {
 
     const apiLinks = getApiLinksManifest(await parseApiLinks());
     core.debug(JSON.stringify(apiLinks));
+
+    if (!(await tryDownloadVanilla(installPath))) {
+      core.setFailed(
+        'Unable to download HK files, see previous output for more details',
+      );
+    }
+
     if (await tryDownloadApiManifest(apiLinks, installPath)) {
       const modLinks = getModLinksManifests(await parseModLinks());
       core.debug(JSON.stringify(modLinks));

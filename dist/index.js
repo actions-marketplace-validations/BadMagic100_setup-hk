@@ -326,6 +326,9 @@ function run() {
             yield io.mkdirP(modPath);
             const apiLinks = (0, apilinks_1.getApiLinksManifest)(yield (0, xml_util_1.parseApiLinks)());
             core.debug(JSON.stringify(apiLinks));
+            if (!(yield (0, apilinks_1.tryDownloadVanilla)(installPath))) {
+                core.setFailed('Unable to download HK files, see previous output for more details');
+            }
             if (yield (0, apilinks_1.tryDownloadApiManifest)(apiLinks, installPath)) {
                 const modLinks = (0, modlinks_1.getModLinksManifests)(yield (0, xml_util_1.parseModLinks)());
                 core.debug(JSON.stringify(modLinks));

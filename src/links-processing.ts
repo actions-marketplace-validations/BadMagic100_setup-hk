@@ -1,4 +1,5 @@
 import * as tc from '@actions/tool-cache';
+import * as io from '@actions/io';
 import * as core from '@actions/core';
 import * as crypto from 'crypto';
 import * as path from 'path';
@@ -75,7 +76,11 @@ export async function downloadLink(
         detailedReason: `Download link ${link.$value} does not have a supported extension`,
       };
     }
-    const resultPath = await tc.downloadTool(link.$value, dest);
+    let resultPath = await tc.downloadTool(link.$value, dest);
+    const fileName = link.$value.substring(link.$value.lastIndexOf('/') + 1);
+    const newPath = path.join(path.dirname(resultPath), fileName);
+    await io.mv(resultPath, newPath);
+    resultPath = newPath;
 
     const fileContent = await readFile(resultPath);
     const actualHash = crypto

@@ -202,6 +202,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.downloadLink = exports.getPreferredLinkPlatform = void 0;
 const tc = __importStar(__nccwpck_require__(7784));
+const io = __importStar(__nccwpck_require__(7436));
 const core = __importStar(__nccwpck_require__(2186));
 const crypto = __importStar(__nccwpck_require__(6113));
 const path = __importStar(__nccwpck_require__(1017));
@@ -241,7 +242,11 @@ function downloadLink(link, dest) {
                     detailedReason: `Download link ${link.$value} does not have a supported extension`,
                 };
             }
-            const resultPath = yield tc.downloadTool(link.$value, dest);
+            let resultPath = yield tc.downloadTool(link.$value, dest);
+            const fileName = link.$value.substring(link.$value.lastIndexOf('/') + 1);
+            const newPath = path.join(path.dirname(resultPath), fileName);
+            yield io.mv(resultPath, newPath);
+            resultPath = newPath;
             const fileContent = yield (0, promises_1.readFile)(resultPath);
             const actualHash = crypto
                 .createHash('sha256')

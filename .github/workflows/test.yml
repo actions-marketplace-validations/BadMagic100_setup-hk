@@ -23,6 +23,15 @@ jobs:
         os: [windows, macos, ubuntu]
     steps:
       - uses: actions/checkout@v3
-      - uses: ./
+      - name: Test with no deps
+        uses: ./
         with:
           apiPath: API/
+      - name: Cleanup
+        run: |
+          rm -rf API
+      - name: Test with deps
+        uses: ./
+        with:
+          apiPath: API/
+          dependencyFilePath: .github/workflows/workflow-inputs/ModDependencies.txt

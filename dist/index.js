@@ -325,10 +325,12 @@ const dependency_management_1 = __nccwpck_require__(6641);
 const modlinks_1 = __nccwpck_require__(213);
 const xml_util_1 = __nccwpck_require__(9521);
 const zip_a_folder_1 = __nccwpck_require__(6602);
+const mod_dependencies_1 = __nccwpck_require__(1687);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const installPath = core.getInput('apiPath');
+            const dependencyFilePath = core.getInput('dependencyFilePath');
             const modPath = path_1.default.join(installPath, 'Mods');
             core.debug(`Requested to install at ${installPath}`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
             yield io.mkdirP(modPath);
@@ -344,7 +346,10 @@ function run() {
                     map[obj.Name] = obj;
                     return map;
                 }, {});
-                const modsToDownload = (0, dependency_management_1.resolveDependencyTree)(['MagicUI', 'ConnectionMetadataInjector', 'Satchel'], modLookup);
+                const dependencyEntries = yield (0, mod_dependencies_1.parse)(dependencyFilePath);
+                core.debug(`Parsed dependencies as ${JSON.stringify(dependencyEntries)}`);
+                const modsToDownload = (0, dependency_management_1.resolveDependencyTree)(dependencyEntries.map(x => x.modName), modLookup);
+                core.debug(`Resolved dependency closure as ${JSON.stringify(modsToDownload)}`);
                 let downloadedAllDependencies = true;
                 for (const mod of modsToDownload) {
                     const success = yield (0, modlinks_1.tryDownloadModManifest)(mod, modPath);
@@ -385,6 +390,71 @@ function run() {
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 1687:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parse = void 0;
+const promises_1 = __nccwpck_require__(3292);
+function parseTokens(tokens) {
+    let buf = '';
+    let field = 'modName';
+    const result = { modName: '' };
+    for (const token of tokens) {
+        // check reserve words first
+        if (token === 'as') {
+            if (field === 'modName') {
+                result[field] = buf;
+                buf = '';
+                field = 'alias';
+            }
+            else {
+                throw new Error(`Parse error: unexpected 'as' near ${buf}`);
+            }
+        }
+        else if (token === 'from') {
+            result[field] = buf;
+            buf = '';
+            field = 'url';
+        }
+        else {
+            // the token is not a reserve word. append it
+            if (buf !== '') {
+                buf += ' ';
+            }
+            buf += token;
+        }
+    }
+    // out of tokens. push the buffer to the current field
+    result[field] = buf;
+    return result;
+}
+function parse(path) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!path) {
+            return [];
+        }
+        const content = yield (0, promises_1.readFile)(path, 'utf8');
+        const lines = content.split(/\r?\n/);
+        return lines.map(x => parseTokens(x.trim().split(' ')));
+    });
+}
+exports.parse = parse;
 
 
 /***/ }),

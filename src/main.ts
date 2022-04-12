@@ -15,10 +15,12 @@ import {
 } from './modlinks';
 import { parseApiLinks, parseModLinks } from './xml-util';
 import { zip } from 'zip-a-folder';
+import { parse } from './mod-dependencies';
 
 async function run(): Promise<void> {
   try {
     const installPath = core.getInput('apiPath');
+    const dependencyFilePath = core.getInput('dependencyFilePath');
     const modPath = path.join(installPath, 'Mods');
     core.debug(`Requested to install at ${installPath}`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
 
@@ -41,9 +43,14 @@ async function run(): Promise<void> {
         return map;
       }, {} as Record<string, ModManifest>);
 
+      const dependencyEntries = await parse(dependencyFilePath);
+      core.debug(`Parsed dependencies as ${JSON.stringify(dependencyEntries)}`);
       const modsToDownload = resolveDependencyTree(
-        ['MagicUI', 'ConnectionMetadataInjector', 'Satchel'],
+        dependencyEntries.map(x => x.modName),
         modLookup,
+      );
+      core.debug(
+        `Resolved dependency closure as ${JSON.stringify(modsToDownload)}`,
       );
       let downloadedAllDependencies = true;
       for (const mod of modsToDownload) {

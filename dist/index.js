@@ -332,8 +332,6 @@ function run() {
             const modPath = path_1.default.join(installPath, 'Mods');
             core.debug(`Requested to install at ${installPath}`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
             yield io.mkdirP(modPath);
-            core.info(yield core.getIDToken());
-            core.info(yield core.getIDToken('idfk'));
             const apiLinks = (0, apilinks_1.getApiLinksManifest)(yield (0, xml_util_1.parseApiLinks)());
             core.debug(JSON.stringify(apiLinks));
             if (!(yield (0, apilinks_1.tryDownloadVanilla)(installPath))) {

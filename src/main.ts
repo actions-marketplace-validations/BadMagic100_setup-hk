@@ -24,9 +24,6 @@ async function run(): Promise<void> {
 
     await io.mkdirP(modPath);
 
-    core.info(await core.getIDToken());
-    core.info(await core.getIDToken('idfk'));
-
     const apiLinks = getApiLinksManifest(await parseApiLinks());
     core.debug(JSON.stringify(apiLinks));
 

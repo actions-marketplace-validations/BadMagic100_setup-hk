@@ -44,13 +44,15 @@ async function run(): Promise<void> {
       }, {} as Record<string, ModManifest>);
 
       const dependencyEntries = await parse(dependencyFilePath);
-      core.debug(`Parsed dependencies as ${JSON.stringify(dependencyEntries)}`);
+      core.debug(
+        `Parsed direct dependencies as ${JSON.stringify(dependencyEntries)}`,
+      );
       const modsToDownload = resolveDependencyTree(
         dependencyEntries.map(x => x.modName),
         modLookup,
       );
       core.debug(
-        `Resolved dependency closure as ${JSON.stringify(modsToDownload)}`,
+        `Resolved dependency closure as ${JSON.stringify([...modsToDownload])}`,
       );
       let downloadedAllDependencies = true;
       for (const mod of modsToDownload) {

@@ -347,9 +347,9 @@ function run() {
                     return map;
                 }, {});
                 const dependencyEntries = yield (0, mod_dependencies_1.parse)(dependencyFilePath);
-                core.debug(`Parsed dependencies as ${JSON.stringify(dependencyEntries)}`);
+                core.debug(`Parsed direct dependencies as ${JSON.stringify(dependencyEntries)}`);
                 const modsToDownload = (0, dependency_management_1.resolveDependencyTree)(dependencyEntries.map(x => x.modName), modLookup);
-                core.debug(`Resolved dependency closure as ${JSON.stringify(modsToDownload)}`);
+                core.debug(`Resolved dependency closure as ${JSON.stringify([...modsToDownload])}`);
                 let downloadedAllDependencies = true;
                 for (const mod of modsToDownload) {
                     const success = yield (0, modlinks_1.tryDownloadModManifest)(mod, modPath);

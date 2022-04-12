@@ -28,8 +28,9 @@ jobs:
         with:
           apiPath: API/
       - name: Cleanup
-        run: |
-          rm -rf API
+        uses: JessTG/rm@v1.0.2
+        with:
+          path: API
       - name: Test with deps
         uses: ./
         with:

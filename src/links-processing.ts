@@ -77,10 +77,13 @@ export async function downloadLink(
       };
     }
     let resultPath = await tc.downloadTool(link.$value, dest);
-    const fileName = link.$value.substring(link.$value.lastIndexOf('/') + 1);
-    const newPath = path.join(path.dirname(resultPath), fileName);
-    await io.mv(resultPath, newPath);
-    resultPath = newPath;
+    // if the link is obviously a link to a file, try to read the filename and rename. otherwise leave as is
+    if (link.$value.includes('/')) {
+      const fileName = link.$value.substring(link.$value.lastIndexOf('/') + 1);
+      const newPath = path.join(path.dirname(resultPath), fileName);
+      await io.mv(resultPath, newPath);
+      resultPath = newPath;
+    }
 
     const fileContent = await readFile(resultPath);
     const actualHash = crypto

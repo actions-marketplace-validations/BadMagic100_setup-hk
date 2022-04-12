@@ -243,10 +243,13 @@ function downloadLink(link, dest) {
                 };
             }
             let resultPath = yield tc.downloadTool(link.$value, dest);
-            const fileName = link.$value.substring(link.$value.lastIndexOf('/') + 1);
-            const newPath = path.join(path.dirname(resultPath), fileName);
-            yield io.mv(resultPath, newPath);
-            resultPath = newPath;
+            // if the link is obviously a link to a file, try to read the filename and rename. otherwise leave as is
+            if (link.$value.includes('/')) {
+                const fileName = link.$value.substring(link.$value.lastIndexOf('/') + 1);
+                const newPath = path.join(path.dirname(resultPath), fileName);
+                yield io.mv(resultPath, newPath);
+                resultPath = newPath;
+            }
             const fileContent = yield (0, promises_1.readFile)(resultPath);
             const actualHash = crypto
                 .createHash('sha256')
@@ -329,6 +332,8 @@ function run() {
             const modPath = path_1.default.join(installPath, 'Mods');
             core.debug(`Requested to install at ${installPath}`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
             yield io.mkdirP(modPath);
+            core.info(yield core.getIDToken());
+            core.info(yield core.getIDToken('idfk'));
             const apiLinks = (0, apilinks_1.getApiLinksManifest)(yield (0, xml_util_1.parseApiLinks)());
             core.debug(JSON.stringify(apiLinks));
             if (!(yield (0, apilinks_1.tryDownloadVanilla)(installPath))) {

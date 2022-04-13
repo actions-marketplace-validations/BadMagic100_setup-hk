@@ -424,7 +424,7 @@ function parseTokens(tokens) {
                 field = 'alias';
             }
             else {
-                throw new Error(`Parse error: unexpected 'as' near ${buf}`);
+                throw new Error(`Parse error: unexpected 'as' near '${buf}'`);
             }
         }
         else if (token === 'from') {

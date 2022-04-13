@@ -18,7 +18,7 @@ function parseTokens(tokens: string[]): ModDependency {
         buf = '';
         field = 'alias';
       } else {
-        throw new Error(`Parse error: unexpected 'as' near ${buf}`);
+        throw new Error(`Parse error: unexpected 'as' near '${buf}'`);
       }
     } else if (token === 'from') {
       result[field] = buf;

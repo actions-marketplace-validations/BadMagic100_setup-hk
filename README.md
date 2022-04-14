@@ -1,105 +1,45 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+## setup-hk
 
-# Create a JavaScript Action using TypeScript
+![test status](https://github.com/BadMagic100/setup-hk/workflows/build-test/badge.svg)
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
-
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
-
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
-
-## Create an action from this template
-
-Click the `Use this Template` and provide the new repo details for your action
-
-## Code in Main
-
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
-
-Install the dependencies  
-```bash
-$ npm install
-```
-
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
-
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
-
-```yaml
-uses: ./
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
+setup-hk is a simple action to set up the Hollow Knight Modding API and any dependencies you may have on other mods. These
+will be fetched from https://github.com/hk-modding/modlinks unless otherwise specified.
 
 ## Usage:
 
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+In your workflow definition, declare the following workflow step:
+
+```yaml
+- uses: BadMagic100/setup-hk@v1
+  with:
+    apiPath: API/ # the path that you want your files to be installed at; this is the equivalent of your Managed/ folder locally
+    dependencyFilePath: ModDependencies.txt # the path to your dependency definition. optional.
+```
+
+If you declare dependencies on other mods, you will need to create a `ModDependencies.txt` in your repo listing your dependencies.
+It might look something like this:
+
+```text
+MagicUI
+ConnectionMetadataInjector as CMI
+Satchel as Bag from https://github.com/PrashantMohta/Satchel/releases/download/v0.7.4/Satchel.dll
+```
+
+As you can see, there are several ways you can declare a dependency on a mod. The following are all valid:
+
+- `ModName`
+- `ModName as SomeAlias`
+- `ModName from http://some.url/some-zip-or-dll-file`
+- `ModName as SomeAlias from http://some.url/some-zip-or-dll-file`
+
+The mod name is the name of the mod exactly as it appears in modlinks. This is required to resolve chained dependencies. Declaring dependencies on mods that are not in modlinks is not a supported usecase (because you likely won't be able to upload your mod to modlinks either).
+
+The mod alias is the name of the folder the mod will be created in. This is useful if you work on projects that have a different name in
+the .dll than they do in modlinks. For example, contributors to Rando4 could use `Randomizer 4 as RandomizerMod` so that they can use/reference their dev build of rando locally, rather than needing to rename their folder structure to make it looks as though it was
+installed from scarab.
+
+Finally, you can provide a link to a direct download of the mod. This allows you to reference prerelease dev builds before they are
+in modlinks. Like ModLinks, both .dll and .zip files are accepted. The URL **must** end in `/filename.dll` or `/filename.zip` to be
+processed appropriately. Be aware that using this method, the hash of your download will not be verified and you should avoid it if
+possible. If you are referencing the version of a mod from modlinks, you should not use this syntax and the action will give you a
+warning.

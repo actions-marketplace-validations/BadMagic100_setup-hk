@@ -568,8 +568,8 @@ function tryDownloadModManifest(manifest, overrides, modInstallPath) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info(`Attempting to download ${manifest.Name} v${manifest.Version}`);
         if (overrides.url) {
-            core.warning('Downloading a mod directly from a link with no hash is inherently dangerous since the hash cannot be verified. ' +
-                'By doing this, you assume the risk of a bad actor replacing the file. Please update your mod dependencies as ' +
+            core.warning(`Downloading a mod (${manifest.Name}) directly from a link with no hash is inherently dangerous since the hash cannot be ` +
+                'verified. By doing this, you assume the risk of a bad actor replacing the file. Please update your mod dependencies as ' +
                 'soon as you are able to do so.');
         }
         const linkToDownload = (_a = overrides.url) !== null && _a !== void 0 ? _a : (isAllPlatformMod(manifest) ? manifest.Link : manifest.Links);

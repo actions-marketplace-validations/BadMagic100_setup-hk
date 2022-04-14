@@ -3,6 +3,7 @@ import { ModManifest } from './modlinks';
 import * as core from '@actions/core';
 import { ModDependency } from './mod-dependencies';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toLookup<K extends keyof any, V>(
   values: V[],
   keySelector: (val: V) => K,

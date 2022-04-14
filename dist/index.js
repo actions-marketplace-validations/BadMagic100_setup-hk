@@ -136,6 +136,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.resolveDependencyTree = void 0;
 const queue_typescript_1 = __nccwpck_require__(1676);
 const core = __importStar(__nccwpck_require__(2186));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toLookup(values, keySelector) {
     return values.reduce((map, val) => {
         map[keySelector(val)] = val;
@@ -566,6 +567,11 @@ function tryDownloadModManifest(manifest, overrides, modInstallPath) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         core.info(`Attempting to download ${manifest.Name} v${manifest.Version}`);
+        if (overrides.url) {
+            core.warning('Downloading a mod directly from a link with no hash is inherently dangerous since the hash cannot be verified. ' +
+                'By doing this, you assume the risk of a bad actor replacing the file. Please update your mod dependencies as ' +
+                'soon as you are able to do so.');
+        }
         const linkToDownload = (_a = overrides.url) !== null && _a !== void 0 ? _a : (isAllPlatformMod(manifest) ? manifest.Link : manifest.Links);
         const result = yield (0, links_processing_1.downloadLink)(linkToDownload);
         if (result.succeeded) {

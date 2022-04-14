@@ -80,7 +80,7 @@ export async function tryDownloadModManifest(
 ): Promise<boolean> {
   core.info(`Attempting to download ${manifest.Name} v${manifest.Version}`);
   const linkToDownload =
-    overrides.alias ??
+    overrides.url ??
     (isAllPlatformMod(manifest) ? manifest.Link : manifest.Links);
   const result = await downloadLink(linkToDownload);
   if (result.succeeded) {

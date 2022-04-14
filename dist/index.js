@@ -566,7 +566,7 @@ function tryDownloadModManifest(manifest, overrides, modInstallPath) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         core.info(`Attempting to download ${manifest.Name} v${manifest.Version}`);
-        const linkToDownload = (_a = overrides.alias) !== null && _a !== void 0 ? _a : (isAllPlatformMod(manifest) ? manifest.Link : manifest.Links);
+        const linkToDownload = (_a = overrides.url) !== null && _a !== void 0 ? _a : (isAllPlatformMod(manifest) ? manifest.Link : manifest.Links);
         const result = yield (0, links_processing_1.downloadLink)(linkToDownload);
         if (result.succeeded) {
             const thisModInstallPath = yield extractMod(manifest, overrides, result, modInstallPath);

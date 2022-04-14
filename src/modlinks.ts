@@ -8,6 +8,7 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as tc from '@actions/tool-cache';
 import path from 'path';
+import { ModDependency } from './mod-dependencies';
 
 interface ModLinksSchema {
   ModLinks: {
@@ -52,10 +53,11 @@ export function getModLinksManifests(rawJson: unknown): ModManifest[] {
 
 async function extractMod(
   mod: ModManifest,
+  overrides: ModDependency,
   result: DownloadSuccess,
   modInstallPath: string,
 ): Promise<string> {
-  const thisModInstall = path.join(modInstallPath, mod.Name);
+  const thisModInstall = path.join(modInstallPath, overrides.alias ?? mod.Name);
   await io.mkdirP(thisModInstall);
 
   if (result.fileType === '.dll') {
@@ -73,15 +75,18 @@ async function extractMod(
 
 export async function tryDownloadModManifest(
   manifest: ModManifest,
+  overrides: ModDependency,
   modInstallPath: string,
 ): Promise<boolean> {
   core.info(`Attempting to download ${manifest.Name} v${manifest.Version}`);
-  const result = await downloadLink(
-    isAllPlatformMod(manifest) ? manifest.Link : manifest.Links,
-  );
+  const linkToDownload =
+    overrides.alias ??
+    (isAllPlatformMod(manifest) ? manifest.Link : manifest.Links);
+  const result = await downloadLink(linkToDownload);
   if (result.succeeded) {
     const thisModInstallPath = await extractMod(
       manifest,
+      overrides,
       result,
       modInstallPath,
     );

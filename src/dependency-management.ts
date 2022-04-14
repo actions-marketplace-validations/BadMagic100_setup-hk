@@ -1,12 +1,33 @@
 import { Queue } from 'queue-typescript';
 import { ModManifest } from './modlinks';
 import * as core from '@actions/core';
+import { ModDependency } from './mod-dependencies';
 
+function toLookup<K extends keyof any, V>(
+  values: V[],
+  keySelector: (val: V) => K,
+): Record<K, V> {
+  return values.reduce((map, val) => {
+    map[keySelector(val)] = val;
+    return map;
+  }, {} as Record<K, V>);
+}
+
+/**
+ * Gets a list of all required mod metadata needed to install a set of mods
+ * @param directDependencies The direct dependencies this mod needs, and any local aliases
+ *                           or download overrides needed for a successful build
+ * @param modLinks All known mod links
+ * @returns An array of pairs of the mod's modlink manifest and any local overrides, if known.
+ */
 export function resolveDependencyTree(
-  targetMods: string[],
-  modLookup: Record<string, ModManifest>,
-): Set<ModManifest> {
-  const modsToProcess = new Queue<string>(...targetMods);
+  directDependencies: ModDependency[],
+  modLinks: ModManifest[],
+): Array<[ModManifest, ModDependency]> {
+  const dependencyLookup = toLookup(directDependencies, dep => dep.modName);
+  const modLookup = toLookup(modLinks, mod => mod.Name);
+
+  const modsToProcess = new Queue<string>(...Object.keys(dependencyLookup));
   const processedMods = new Set<string>();
   let dependencyError = false;
 
@@ -28,5 +49,13 @@ export function resolveDependencyTree(
       'One or more requested dependencies was not available in modlinks. See previous output for more information',
     );
   }
-  return new Set<ModManifest>([...processedMods].map(x => modLookup[x]));
+  return [...processedMods].map(modName => {
+    // by default, the only local metadata we need for a mod is its name. if we've declared a direct dependency,
+    // we may also be declaring additional data/overrides
+    let dependencyEntry: ModDependency = { modName };
+    if (modName in dependencyLookup) {
+      dependencyEntry = dependencyLookup[modName];
+    }
+    return [modLookup[modName], dependencyEntry];
+  });
 }

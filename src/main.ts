@@ -8,11 +8,7 @@ import {
   tryDownloadVanilla,
 } from './apilinks';
 import { resolveDependencyTree } from './dependency-management';
-import {
-  getModLinksManifests,
-  ModManifest,
-  tryDownloadModManifest,
-} from './modlinks';
+import { getModLinksManifests, tryDownloadModManifest } from './modlinks';
 import { parseApiLinks, parseModLinks } from './xml-util';
 import { zip } from 'zip-a-folder';
 import { parse } from './mod-dependencies';
@@ -38,31 +34,27 @@ async function run(): Promise<void> {
     if (await tryDownloadApiManifest(apiLinks, installPath)) {
       const modLinks = getModLinksManifests(await parseModLinks());
       core.debug(JSON.stringify(modLinks));
-      const modLookup = modLinks.reduce((map, obj) => {
-        map[obj.Name] = obj;
-        return map;
-      }, {} as Record<string, ModManifest>);
 
       const dependencyEntries = await parse(dependencyFilePath);
       core.debug(
         `Parsed direct dependencies as ${JSON.stringify(dependencyEntries)}`,
       );
-      const modsToDownload = resolveDependencyTree(
-        dependencyEntries.map(x => x.modName),
-        modLookup,
-      );
+      const modsToDownload = resolveDependencyTree(dependencyEntries, modLinks);
       core.debug(
         `Resolved dependency closure as ${JSON.stringify([...modsToDownload])}`,
       );
       let downloadedAllDependencies = true;
       for (const mod of modsToDownload) {
-        const success = await tryDownloadModManifest(mod, modPath);
+        const [manifest, metadata] = mod;
+        const success = await tryDownloadModManifest(
+          manifest,
+          metadata,
+          modPath,
+        );
         downloadedAllDependencies = downloadedAllDependencies && success;
       }
 
       if (downloadedAllDependencies) {
-        // do something fancy
-
         // for debug purposes, upload the created install folder to sanity check if needed
         if (core.isDebug()) {
           const artifactName = `ManagedFolder-${process.platform}`;

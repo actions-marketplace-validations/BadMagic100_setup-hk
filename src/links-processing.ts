@@ -57,9 +57,15 @@ export function getPreferredLinkPlatform(): keyof MultiplatformLinks {
 }
 
 export async function downloadLink(
-  link: LinkData | MultiplatformLinks,
+  link: string | LinkData | MultiplatformLinks,
   dest?: string,
 ): Promise<DownloadStatus> {
+  let verifyHash = true;
+  if (typeof link === 'string') {
+    verifyHash = false;
+    link = { $value: link, __SHA256: '' };
+  }
+
   if (!isSingleLink(link)) {
     const platform = getPreferredLinkPlatform();
     link = link[platform];
@@ -91,7 +97,7 @@ export async function downloadLink(
       .update(fileContent)
       .digest('hex');
     const expectedHash = link.__SHA256.toLowerCase();
-    if (actualHash !== expectedHash) {
+    if (verifyHash && actualHash !== expectedHash) {
       return {
         succeeded: false,
         detailedReason: `Expected hash ${expectedHash}, got ${actualHash} instead`,

@@ -136,8 +136,23 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.resolveDependencyTree = void 0;
 const queue_typescript_1 = __nccwpck_require__(1676);
 const core = __importStar(__nccwpck_require__(2186));
-function resolveDependencyTree(targetMods, modLookup) {
-    const modsToProcess = new queue_typescript_1.Queue(...targetMods);
+function toLookup(values, keySelector) {
+    return values.reduce((map, val) => {
+        map[keySelector(val)] = val;
+        return map;
+    }, {});
+}
+/**
+ * Gets a list of all required mod metadata needed to install a set of mods
+ * @param directDependencies The direct dependencies this mod needs, and any local aliases
+ *                           or download overrides needed for a successful build
+ * @param modLinks All known mod links
+ * @returns An array of pairs of the mod's modlink manifest and any local overrides, if known.
+ */
+function resolveDependencyTree(directDependencies, modLinks) {
+    const dependencyLookup = toLookup(directDependencies, dep => dep.modName);
+    const modLookup = toLookup(modLinks, mod => mod.Name);
+    const modsToProcess = new queue_typescript_1.Queue(...Object.keys(dependencyLookup));
     const processedMods = new Set();
     let dependencyError = false;
     while (modsToProcess.length > 0) {
@@ -155,7 +170,15 @@ function resolveDependencyTree(targetMods, modLookup) {
     if (dependencyError) {
         core.setFailed('One or more requested dependencies was not available in modlinks. See previous output for more information');
     }
-    return new Set([...processedMods].map(x => modLookup[x]));
+    return [...processedMods].map(modName => {
+        // by default, the only local metadata we need for a mod is its name. if we've declared a direct dependency,
+        // we may also be declaring additional data/overrides
+        let dependencyEntry = { modName };
+        if (modName in dependencyLookup) {
+            dependencyEntry = dependencyLookup[modName];
+        }
+        return [modLookup[modName], dependencyEntry];
+    });
 }
 exports.resolveDependencyTree = resolveDependencyTree;
 
@@ -229,6 +252,11 @@ function getPreferredLinkPlatform() {
 exports.getPreferredLinkPlatform = getPreferredLinkPlatform;
 function downloadLink(link, dest) {
     return __awaiter(this, void 0, void 0, function* () {
+        let verifyHash = true;
+        if (typeof link === 'string') {
+            verifyHash = false;
+            link = { $value: link, __SHA256: '' };
+        }
         if (!isSingleLink(link)) {
             const platform = getPreferredLinkPlatform();
             link = link[platform];
@@ -256,7 +284,7 @@ function downloadLink(link, dest) {
                 .update(fileContent)
                 .digest('hex');
             const expectedHash = link.__SHA256.toLowerCase();
-            if (actualHash !== expectedHash) {
+            if (verifyHash && actualHash !== expectedHash) {
                 return {
                     succeeded: false,
                     detailedReason: `Expected hash ${expectedHash}, got ${actualHash} instead`,
@@ -342,21 +370,17 @@ function run() {
             if (yield (0, apilinks_1.tryDownloadApiManifest)(apiLinks, installPath)) {
                 const modLinks = (0, modlinks_1.getModLinksManifests)(yield (0, xml_util_1.parseModLinks)());
                 core.debug(JSON.stringify(modLinks));
-                const modLookup = modLinks.reduce((map, obj) => {
-                    map[obj.Name] = obj;
-                    return map;
-                }, {});
                 const dependencyEntries = yield (0, mod_dependencies_1.parse)(dependencyFilePath);
                 core.debug(`Parsed direct dependencies as ${JSON.stringify(dependencyEntries)}`);
-                const modsToDownload = (0, dependency_management_1.resolveDependencyTree)(dependencyEntries.map(x => x.modName), modLookup);
+                const modsToDownload = (0, dependency_management_1.resolveDependencyTree)(dependencyEntries, modLinks);
                 core.debug(`Resolved dependency closure as ${JSON.stringify([...modsToDownload])}`);
                 let downloadedAllDependencies = true;
                 for (const mod of modsToDownload) {
-                    const success = yield (0, modlinks_1.tryDownloadModManifest)(mod, modPath);
+                    const [manifest, metadata] = mod;
+                    const success = yield (0, modlinks_1.tryDownloadModManifest)(manifest, metadata, modPath);
                     downloadedAllDependencies = downloadedAllDependencies && success;
                 }
                 if (downloadedAllDependencies) {
-                    // do something fancy
                     // for debug purposes, upload the created install folder to sanity check if needed
                     if (core.isDebug()) {
                         const artifactName = `ManagedFolder-${process.platform}`;
@@ -519,9 +543,10 @@ function getModLinksManifests(rawJson) {
     return manifests;
 }
 exports.getModLinksManifests = getModLinksManifests;
-function extractMod(mod, result, modInstallPath) {
+function extractMod(mod, overrides, result, modInstallPath) {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        const thisModInstall = path_1.default.join(modInstallPath, mod.Name);
+        const thisModInstall = path_1.default.join(modInstallPath, (_a = overrides.alias) !== null && _a !== void 0 ? _a : mod.Name);
         yield io.mkdirP(thisModInstall);
         if (result.fileType === '.dll') {
             yield io.cp(result.resultPath, thisModInstall, { force: true });
@@ -537,12 +562,14 @@ function extractMod(mod, result, modInstallPath) {
         return thisModInstall;
     });
 }
-function tryDownloadModManifest(manifest, modInstallPath) {
+function tryDownloadModManifest(manifest, overrides, modInstallPath) {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         core.info(`Attempting to download ${manifest.Name} v${manifest.Version}`);
-        const result = yield (0, links_processing_1.downloadLink)(isAllPlatformMod(manifest) ? manifest.Link : manifest.Links);
+        const linkToDownload = (_a = overrides.alias) !== null && _a !== void 0 ? _a : (isAllPlatformMod(manifest) ? manifest.Link : manifest.Links);
+        const result = yield (0, links_processing_1.downloadLink)(linkToDownload);
         if (result.succeeded) {
-            const thisModInstallPath = yield extractMod(manifest, result, modInstallPath);
+            const thisModInstallPath = yield extractMod(manifest, overrides, result, modInstallPath);
             core.info(`Successfully downloaded ${manifest.Name} v${manifest.Version} to ${thisModInstallPath}`);
             return true;
         }

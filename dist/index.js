@@ -375,13 +375,11 @@ function run() {
                 core.debug(`Parsed direct dependencies as ${JSON.stringify(dependencyEntries)}`);
                 const modsToDownload = (0, dependency_management_1.resolveDependencyTree)(dependencyEntries, modLinks);
                 core.debug(`Resolved dependency closure as ${JSON.stringify([...modsToDownload])}`);
-                let downloadedAllDependencies = true;
-                for (const mod of modsToDownload) {
-                    const [manifest, metadata] = mod;
-                    const success = yield (0, modlinks_1.tryDownloadModManifest)(manifest, metadata, modPath);
-                    downloadedAllDependencies = downloadedAllDependencies && success;
-                }
-                if (downloadedAllDependencies) {
+                const modDownloadResults = yield Promise.all(modsToDownload.map((mod) => __awaiter(this, void 0, void 0, function* () {
+                    const [manifest, meta] = mod;
+                    return yield (0, modlinks_1.tryDownloadModManifest)(manifest, meta, modPath);
+                })));
+                if (modDownloadResults.every(x => !!x)) {
                     // for debug purposes, upload the created install folder to sanity check if needed
                     if (core.isDebug()) {
                         const artifactName = `ManagedFolder-${process.platform}`;

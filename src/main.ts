@@ -43,18 +43,14 @@ async function run(): Promise<void> {
       core.debug(
         `Resolved dependency closure as ${JSON.stringify([...modsToDownload])}`,
       );
-      let downloadedAllDependencies = true;
-      for (const mod of modsToDownload) {
-        const [manifest, metadata] = mod;
-        const success = await tryDownloadModManifest(
-          manifest,
-          metadata,
-          modPath,
-        );
-        downloadedAllDependencies = downloadedAllDependencies && success;
-      }
 
-      if (downloadedAllDependencies) {
+      const modDownloadResults = await Promise.all(
+        modsToDownload.map(async mod => {
+          const [manifest, meta] = mod;
+          return await tryDownloadModManifest(manifest, meta, modPath);
+        }),
+      );
+      if (modDownloadResults.every(x => !!x)) {
         // for debug purposes, upload the created install folder to sanity check if needed
         if (core.isDebug()) {
           const artifactName = `ManagedFolder-${process.platform}`;

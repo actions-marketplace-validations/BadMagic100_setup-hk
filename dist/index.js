@@ -439,6 +439,10 @@ function parseTokens(tokens) {
     let field = 'modName';
     const result = { modName: '' };
     for (const token of tokens) {
+        // comments terminate parsing the line
+        if (token.startsWith('#')) {
+            break;
+        }
         // check reserve words first
         if (token === 'as') {
             if (field === 'modName') {
@@ -465,7 +469,9 @@ function parseTokens(tokens) {
     }
     // out of tokens. push the buffer to the current field
     result[field] = buf;
-    return result;
+    if (result.modName !== '') {
+        return result;
+    }
 }
 function parse(path) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -474,7 +480,9 @@ function parse(path) {
         }
         const content = yield (0, promises_1.readFile)(path, 'utf8');
         const lines = content.split(/\r?\n/);
-        return lines.map(x => parseTokens(x.trim().split(' ')));
+        return lines
+            .map(x => parseTokens(x.trim().split(' ')))
+            .filter((x) => !!x);
     });
 }
 exports.parse = parse;

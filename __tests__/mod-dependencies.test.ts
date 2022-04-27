@@ -60,6 +60,34 @@ test('parses mod with alias and link', async () => {
   expect(await parse(filePlaceholder)).toEqual([expected]);
 });
 
+test('skips full-line comment, comment part of token', async () => {
+  readFileMock.mockResolvedValue(
+    "#I don't really want to have dependencies right now",
+  );
+
+  expect(await parse(filePlaceholder)).toEqual([]);
+});
+
+test('skips full-line comment, comment own token', async () => {
+  readFileMock.mockResolvedValue(
+    "# I don't really want to have dependencies right now",
+  );
+
+  expect(await parse(filePlaceholder)).toEqual([]);
+});
+
+test('skips partial-line comment', async () => {
+  readFileMock.mockResolvedValue(
+    'MyMod #could add an alias or link using as or from',
+  );
+
+  const expected: ModDependency = {
+    modName: 'MyMod',
+  };
+
+  expect(await parse(filePlaceholder)).toEqual([expected]);
+});
+
 test('fails to parse with late alias', async () => {
   readFileMock.mockResolvedValue('MyMod from https://foo.bar/MyMod.zip as MM');
 

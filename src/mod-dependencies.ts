@@ -6,11 +6,15 @@ export interface ModDependency {
   url?: string;
 }
 
-function parseTokens(tokens: string[]): ModDependency {
+function parseTokens(tokens: string[]): ModDependency | undefined {
   let buf = '';
   let field: keyof ModDependency = 'modName';
   const result: ModDependency = { modName: '' };
   for (const token of tokens) {
+    // comments terminate parsing the line
+    if (token.startsWith('#')) {
+      break;
+    }
     // check reserve words first
     if (token === 'as') {
       if (field === 'modName') {
@@ -34,7 +38,9 @@ function parseTokens(tokens: string[]): ModDependency {
   }
   // out of tokens. push the buffer to the current field
   result[field] = buf;
-  return result;
+  if (result.modName !== '') {
+    return result;
+  }
 }
 
 export async function parse(path?: string): Promise<ModDependency[]> {
@@ -43,5 +49,7 @@ export async function parse(path?: string): Promise<ModDependency[]> {
   }
   const content = await readFile(path, 'utf8');
   const lines = content.split(/\r?\n/);
-  return lines.map(x => parseTokens(x.trim().split(' ')));
+  return lines
+    .map(x => parseTokens(x.trim().split(' ')))
+    .filter((x?: ModDependency): x is ModDependency => !!x);
 }

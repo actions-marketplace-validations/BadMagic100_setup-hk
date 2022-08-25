@@ -42,6 +42,16 @@ export function resolveDependencyTree(
       processedMods.add(currentMod);
     } else if (dependencyLookup[currentMod].url) {
       processedMods.add(currentMod);
+      modLookup[currentMod] = {
+        Name: currentMod,
+        Version: '???',
+        Description: '???',
+        Dependencies: { Dependency: [] },
+        Link: {
+          $value: dependencyLookup[currentMod].url ?? '',
+          __SHA256: '',
+        },
+      };
       core.warning(
         `${currentMod} not found in modlinks, but fetchable from URL`,
       );

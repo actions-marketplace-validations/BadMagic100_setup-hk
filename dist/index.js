@@ -151,6 +151,7 @@ function toLookup(values, keySelector) {
  * @returns An array of pairs of the mod's modlink manifest and any local overrides, if known.
  */
 function resolveDependencyTree(directDependencies, modLinks) {
+    var _a;
     const dependencyLookup = toLookup(directDependencies, dep => dep.modName);
     const modLookup = toLookup(modLinks, mod => mod.Name);
     const modsToProcess = new queue_typescript_1.Queue(...Object.keys(dependencyLookup));
@@ -165,6 +166,16 @@ function resolveDependencyTree(directDependencies, modLinks) {
         }
         else if (dependencyLookup[currentMod].url) {
             processedMods.add(currentMod);
+            modLookup[currentMod] = {
+                Name: currentMod,
+                Version: '???',
+                Description: '???',
+                Dependencies: { Dependency: [] },
+                Link: {
+                    $value: (_a = dependencyLookup[currentMod].url) !== null && _a !== void 0 ? _a : '',
+                    __SHA256: '',
+                },
+            };
             core.warning(`${currentMod} not found in modlinks, but fetchable from URL`);
         }
         else {

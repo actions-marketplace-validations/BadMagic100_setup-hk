@@ -40,6 +40,11 @@ export function resolveDependencyTree(
         modsToProcess.enqueue.bind(modsToProcess),
       );
       processedMods.add(currentMod);
+    } else if (dependencyLookup[currentMod].url) {
+      processedMods.add(currentMod);
+      core.warning(
+        `${currentMod} not found in modlinks, but fetchable from URL`,
+      );
     } else {
       dependencyError = true;
       core.error(`${currentMod} expected in modlinks, but was not present`);

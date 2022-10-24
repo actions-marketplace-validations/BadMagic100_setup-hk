@@ -24,7 +24,7 @@ function toLookup<K extends keyof any, V>(
 export function resolveDependencyTree(
   directDependencies: ModDependency[],
   modLinks: ModManifest[],
-): Array<[ModManifest, ModDependency]> {
+): [ModManifest, ModDependency][] {
   const dependencyLookup = toLookup(directDependencies, dep => dep.modName);
   const modLookup = toLookup(modLinks, mod => mod.Name);
 

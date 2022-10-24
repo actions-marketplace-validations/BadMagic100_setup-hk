@@ -75,7 +75,14 @@ export async function downloadLink(
   }
 
   try {
-    const ext = path.extname(link.$value);
+    let ext = path.extname(link.$value);
+    if (
+      link.$value.startsWith('https://github.com') &&
+      link.$value.includes('/artifacts/')
+    ) {
+      ext = '.zip';
+    }
+
     if (!readonlyIncludes(allowedExtensions, ext)) {
       return {
         succeeded: false,

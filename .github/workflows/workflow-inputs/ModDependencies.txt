@@ -1,6 +1,5 @@
 # example comment
 MagicUI #example comment
 ConnectionMetadataInjector as CMI
-RandoStats from https://github.com/BadMagic100/HollowKnight.Rando4Stats/suites/8919632622/artifacts/408811353
 Satchel as Bag from https://github.com/PrashantMohta/Satchel/releases/download/v0.7.4/Satchel.dll
 kjhlkjhflkajshdkjfhlNotARealMod from https://github.com/BadMagic100/ConnectionSettingsCode/releases/download/v1.0.8256.6937/ConnectionSettingsCode.zip

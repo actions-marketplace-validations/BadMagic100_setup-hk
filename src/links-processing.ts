@@ -76,11 +76,13 @@ export async function downloadLink(
 
   try {
     let ext = path.extname(link.$value);
+    let isArtifact = false;
     if (
-      link.$value.startsWith('https://github.com') &&
+      link.$value.startsWith('https://github.com/') &&
       link.$value.includes('/artifacts/')
     ) {
       ext = '.zip';
+      isArtifact = true;
     }
 
     if (!readonlyIncludes(allowedExtensions, ext)) {
@@ -89,7 +91,8 @@ export async function downloadLink(
         detailedReason: `Download link ${link.$value} does not have a supported extension`,
       };
     }
-    let resultPath = await tc.downloadTool(link.$value, dest);
+    const auth = isArtifact ? 'token ' + (await core.getIDToken()) : undefined;
+    let resultPath = await tc.downloadTool(link.$value, dest, auth);
     // if the link is obviously a link to a file, try to read the filename and rename. otherwise leave as is
     if (link.$value.includes('/')) {
       const fileName = link.$value.substring(link.$value.lastIndexOf('/') + 1);
@@ -110,7 +113,11 @@ export async function downloadLink(
         detailedReason: `Expected hash ${expectedHash}, got ${actualHash} instead`,
       };
     }
-    return { succeeded: true, fileType: ext, resultPath };
+    return {
+      succeeded: true,
+      fileType: ext,
+      resultPath,
+    };
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Unexpected failure';

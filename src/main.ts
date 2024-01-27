@@ -56,10 +56,8 @@ async function run(): Promise<void> {
           const artifactName = `ManagedFolder-${process.platform}`;
           const zipPath = `${artifactName}.zip`;
           await zip(installPath, zipPath);
-          const artifactClient = artifact.create();
-          artifactClient.uploadArtifact(artifactName, [zipPath], '.', {
-            continueOnError: true,
-          });
+          const artifactClient = new artifact.DefaultArtifactClient();
+          artifactClient.uploadArtifact(artifactName, [zipPath], '.');
         }
       } else {
         core.setFailed(

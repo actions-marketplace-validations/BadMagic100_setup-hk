@@ -9,5 +9,5 @@ inputs:
     required: false
     description: 'The path to a ModDependencies.txt file that specifies mods to be installed from modlinks'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'

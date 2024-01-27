@@ -1,6 +1,5 @@
 import * as core from '@actions/core';
 import * as io from '@actions/io';
-import * as artifact from '@actions/artifact';
 import path from 'path';
 import {
   getApiLinksManifest,
@@ -10,7 +9,6 @@ import {
 import { resolveDependencyTree } from './dependency-management';
 import { getModLinksManifests, tryDownloadModManifest } from './modlinks';
 import { parseApiLinks, parseModLinks } from './xml-util';
-import { zip } from 'zip-a-folder';
 import { parse } from './mod-dependencies';
 
 async function run(): Promise<void> {
@@ -50,16 +48,7 @@ async function run(): Promise<void> {
           return await tryDownloadModManifest(manifest, meta, modPath);
         }),
       );
-      if (modDownloadResults.every(x => !!x)) {
-        // for debug purposes, upload the created install folder to sanity check if needed
-        if (core.isDebug()) {
-          const artifactName = `ManagedFolder-${process.platform}`;
-          const zipPath = `${artifactName}.zip`;
-          await zip(installPath, zipPath);
-          const artifactClient = new artifact.DefaultArtifactClient();
-          await artifactClient.uploadArtifact(artifactName, [zipPath], '.');
-        }
-      } else {
+      if (modDownloadResults.some(x => !x)) {
         core.setFailed(
           'Unable to download all dependency files, see previous output for more details',
         );

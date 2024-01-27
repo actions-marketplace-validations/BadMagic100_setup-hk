@@ -57,7 +57,7 @@ async function run(): Promise<void> {
           const zipPath = `${artifactName}.zip`;
           await zip(installPath, zipPath);
           const artifactClient = new artifact.DefaultArtifactClient();
-          artifactClient.uploadArtifact(artifactName, [zipPath], '.');
+          await artifactClient.uploadArtifact(artifactName, [zipPath], '.');
         }
       } else {
         core.setFailed(

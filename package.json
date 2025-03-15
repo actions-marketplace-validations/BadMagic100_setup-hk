@@ -5,6 +5,7 @@
   "description": "An action that installs dependencies for HK mods from modlinks",
   "main": "lib/main.js",
   "scripts": {
+    "prepare": "husky install",
     "clean": "rimraf lib && rimraf dist",
     "build": "tsc",
     "format": "prettier --write \"**/*.ts\"",
